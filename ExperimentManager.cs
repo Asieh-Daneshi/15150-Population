@@ -250,34 +250,53 @@ public class ExperimentManager : MonoBehaviour
 		myPos = new Vector3[6 * 10];
 		
 		
-		List<int> numbers = new List<int>();
-		List<int> Numbers = new List<int>();
+		List<float> numbers = new List<float>();
+		
+		List<float> Numbers = new List<float>();
 		// cnt1=0;
 		// cnt2=0;
-		for (int j1 = 1; j1 <= 6; j1++) // Loop from 1 to 6
-        {
-            for (int j2 = 0; j2 < 10; j2++) // Add each number 10 times
-            {
-                numbers.Add(j1);
-				// cnt1++;
-            }
-        }
-		for (int j1 = 1; j1 <= 10; j1++) // Loop from 1 to 6
-        {
-            for (int j2 = 0; j2 < 6; j2++) // Add each number 10 times
-            {
-				Numbers.Add(j1);
-				// cnt2++;
-            }
-        }
+		// for (int j1 = 1; j1 <= 6; j1++) // Loop from 1 to 6
+        // {
+            // for (int j2 = 0; j2 < 10; j2++) // Add each number 10 times
+            // {
+                // numbers.Add(j1*Mathf.Pow(-1,j1));
+				// // cnt1++;
+            // }
+        // }
+		int ct=0;
+		for (int i1 = 1; i1 <= 10; i1++) 
+		{
+			for (int j1 = 1; j1 <= 6; j1++) 
+			{
+				numbers.Add(j1*Mathf.Pow(-1,j1)*12f);
+				xPos.Add(((i1*0.7f+3)*Mathf.Sin((j1*Mathf.Pow(-1,j1)*12f)*(Mathf.PI)/180f)));
+				zPos.Add((-(i1*0.7f+3)*Mathf.Cos((j1*Mathf.Pow(-1,j1)*12f)*(Mathf.PI)/180f)));
+				print("CT:  "+xPos[ct]+"  ,  "+zPos[ct]);
+				ct++;
+			}
+		}
+		Shuffle(xPos);
+		Shuffle(zPos);
+
+			
+		// for (int j1 = 1; j1 <= 10; j1++) // Loop from 1 to 6
+        // {
+            // for (int j2 = 0; j2 < 6; j2++) // Add each number 10 times
+            // {
+				// Numbers.Add(j1);			//radial
+				// // cnt2++;
+            // }
+        // }
 		// print("CNTTTTTTTTTTTTT: "+cnt1+"  ,  "+cnt2);
-		Shuffle(numbers);
-		Shuffle(Numbers);
+		
+		// Shuffle(numbers);
+		// Shuffle(Numbers);
+		// for(int num=0; num<=60; num++)
+        // {
+            // print("num:  "+numbers[num]+"  ,  "+Numbers[num]);
+        // }
         // Optional: Print the shuffled numbers to the console to verify
-        foreach (int num in Numbers)
-        {
-            Debug.Log("num:  "+num);
-        }
+        
 
 		
 		for (int counter = 0; counter < 60; counter++)
@@ -287,25 +306,25 @@ public class ExperimentManager : MonoBehaviour
 				
 				
 			// shuffledAnglesArrayHuge=(2*Random.Range(0,3)+1)*Random.Range(-1f,1f)*12;
-			shuffledAnglesArrayHuge=numbers[counter]*((Random.Range(0,2)-0.5f)*2f)*12f;
+			// shuffledAnglesArrayHuge=numbers[counter]*12f;
 			// print("Array:  "+shuffledAnglesArrayHuge);
 			// shuffledRadiusArrayHuge=Random.Range(3f,10f);
-			shuffledRadiusArrayHuge=Numbers[counter]*.7f+5f;
+			// shuffledRadiusArrayHuge=Numbers[counter]*.7f+5f;
 			// xPos[counter]=shuffledRadiusArray*Mathf.Sin(shuffledAnglesArray*(Mathf.PI)/180f);
 			// zPos[counter]=-shuffledRadiusArray*Mathf.Cos(shuffledAnglesArray*(Mathf.PI)/180f);
-			myPos[counter] = new Vector3((shuffledRadiusArrayHuge*Mathf.Sin(shuffledAnglesArrayHuge*(Mathf.PI)/180f)), -0.24f, (-shuffledRadiusArrayHuge*Mathf.Cos(shuffledAnglesArrayHuge*(Mathf.PI)/180f)));
-			print("CNTTTTTTTTTTTTT: "+counter);	
+			myPos[counter] = new Vector3(xPos[counter], -0.24f, zPos[counter]);
+			print("CNTTTTTTTTTTTTT: "+counter+"  ,  "+myPos[counter]);	
             yield return null; // Yield each iteration
         }
 		StartCoroutine(InstantiateAvatars());
     }
 	
-	void Shuffle(List<int> list)
+	void Shuffle(List<float> list)
     {
         for (int i = list.Count - 1; i > 0; i--)
         {
             int randomIndex = Random.Range(0, i + 1);
-            int temp = list[i];
+            float temp = list[i];
             list[i] = list[randomIndex];
             list[randomIndex] = temp;
         }
@@ -331,7 +350,7 @@ public class ExperimentManager : MonoBehaviour
 				
 			if(position[1]!=0)
 			{
-				GameObject newAvatar = Instantiate(avatarPrefabs[(i3 % 8)], position, Quaternion.identity);
+				GameObject newAvatar = Instantiate(avatarPrefabs[(i3 % 9)], myPos[i3], Quaternion.identity);
 				// GameObject newAvatar = Instantiate(avatarPrefabs[0], position, Quaternion.identity);
 				newAvatar.transform.Rotate(0f, 180.0f, 0.0f, Space.World);
 				newAvatar.transform.localScale = new Vector3(0.01f, 0.01f, 0.01f);
