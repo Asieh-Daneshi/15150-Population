@@ -767,22 +767,23 @@ public class ExperimentManager : MonoBehaviour
 		// numberOfAgents=Random.Range(1,3)*3-2;		// 1, 4, or 7 agents respond.
 		numberOfAgents=3;		// 1, 4, or 7 agents respond.
 		respondingAgents=new List<int>{};
-		// for (int n = 0; n < numberOfAgents; n++)
-		// {
-			// respondingAgents.Add(shuffledArray[n]);	
-			// print("xxx"+n+"  ,  "+respondingAgents[n]);
-		// }
 		for (int n = 0; n < numberOfAgents; n++)
 		{
-			respondingAgents.Add(n+1);	
+			respondingAgents.Add(shuffledArray[n]);	
+			print("xxx"+n+"  ,  "+respondingAgents[n]);
 		}
+		// for (int n = 0; n < numberOfAgents; n++)
+		// {
+			// respondingAgents.Add(n+1);	
+		// }
 		// =================================================================================================================================
 		// for (int asi=0; asi<=numberOfAgents-1; asi++)
 		// {
 			// print("Responding: "+respondingAgents[asi]);
-			RightLefts=new List<int>{};
+			
 			if (LR==1)	// Agents are supposed to raise their left hand --------------------------------------------------------------------
 			{
+				RightLefts=new List<int>{};
 				for (int n = 0; n < numberOfAgents; n++)
 				{
 					RightLefts.Add(Random.Range(1,7));	
@@ -790,6 +791,7 @@ public class ExperimentManager : MonoBehaviour
 			}
 			else if (LR==2)		// Agents are supposed to raise their right hand -----------------------------------------------------------
 			{
+				RightLefts=new List<int>{};
 				for (int n = 0; n < numberOfAgents; n++)
 				{
 					RightLefts.Add(8);	
@@ -801,10 +803,15 @@ public class ExperimentManager : MonoBehaviour
 				print("Asi:   "+b);
 				for(int a=0; a<60; a++)
 				{
-					if (a % 9==respondingAgents[b])
+					if ((a % 9==respondingAgents[b]) && (respondingAgents[b]<=5))
 					{
 						RightLeftF1=RightLefts[b];
 						Animators[a].SetInteger("F", RightLeftF1);
+					}
+					else if ((a % 9==respondingAgents[b]) && (respondingAgents[b]>5))
+					{
+						RightLeftM1=RightLefts[b];
+						Animators[a].SetInteger("M", RightLeftM1);
 					}
 				}
 			}
@@ -813,10 +820,15 @@ public class ExperimentManager : MonoBehaviour
 			{
 				for(int a=0; a<60; a++)
 				{
-					if (a % 9==respondingAgents[b])
+					if ((a % 9==respondingAgents[b]) && (respondingAgents[b]<=5))
 					{
 						RightLeftF1=RightLefts[b];
 						Animators[a].SetInteger("FLR", RightLeftF1);
+					}
+					else if ((a % 9==respondingAgents[b]) && (respondingAgents[b]>5))
+					{
+						RightLeftM1=RightLefts[b];
+						Animators[a].SetInteger("MLR", RightLeftM1);
 					}
 				}
 			}
@@ -825,11 +837,17 @@ public class ExperimentManager : MonoBehaviour
 			{
 				for(int a=0; a<60; a++)
 				{
-					if (a % 9==respondingAgents[b])
+					if ((a % 9==respondingAgents[b]) && (respondingAgents[b]<=5))
 					{
 						RightLeftF1=RightLefts[b];
 						Animators[a].SetInteger("FI", RightLeftF1);
 						Animators[a].SetInteger("RestartF", RightLeftF1);
+					}
+					else if ((a % 9==respondingAgents[b]) && (respondingAgents[b]>5))
+					{
+						RightLeftM1=RightLefts[b];
+						Animators[a].SetInteger("MI", RightLeftM1);
+						Animators[a].SetInteger("RestartM", RightLeftM1);
 					}
 				}
 			}
@@ -838,12 +856,19 @@ public class ExperimentManager : MonoBehaviour
 			{
 				for(int a=0; a<60; a++)
 				{
-					if (a % 9==respondingAgents[b])
+					if ((a % 9==respondingAgents[b]) && (respondingAgents[b]<=5))
 					{
 						RightLeftF1=RightLefts[b];
 						Animators[a].SetInteger("F", 0);
 						Animators[a].SetInteger("FLR", 0);
 						Animators[a].SetInteger("FI", 0);
+					}
+					else if ((a % 9==respondingAgents[b]) && (respondingAgents[b]>5))
+					{
+						RightLeftM1=RightLefts[b];
+						Animators[a].SetInteger("M", 0);
+						Animators[a].SetInteger("MLR", 0);
+						Animators[a].SetInteger("MI", 0);
 					}
 				}
 			}
@@ -852,10 +877,15 @@ public class ExperimentManager : MonoBehaviour
 			{
 				for(int a=0; a<60; a++)
 				{
-					if (a % 9==respondingAgents[b])
+					if ((a % 9==respondingAgents[b]) && (respondingAgents[b]<=5))
 					{
 						RightLeftF1=RightLefts[b];
 						Animators[a].SetInteger("RestartF", 0);
+					}
+					else if ((a % 9==respondingAgents[b]) && (respondingAgents[b]>5))
+					{
+						RightLeftM1=RightLefts[b];
+						Animators[a].SetInteger("RestartM", 0);
 					}
 				}
 			}
