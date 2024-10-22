@@ -124,8 +124,8 @@ public class ExperimentManager : MonoBehaviour
 	public List<GameObject> Agents;
 	public GameObject Participant;
 	// Introducing Animators ===============================================================================================================
-	public Animator fAnimator1, fAnimator2, fAnimator3, fAnimator4, fAnimator5, fAnimator6, fAnimator7, fAnimator8;
-	public Animator mAnimator1, mAnimator2, mAnimator3, mAnimator4, mAnimator5, mAnimator6, mAnimator7;
+	public Animator fAnimator1, fAnimator2, fAnimator3, fAnimator4, fAnimator5;
+	public Animator mAnimator1, mAnimator2, mAnimator3, mAnimator4;
 	public Animator pAnimator;
 	public IEnumerator raiseHandCoroutine;
 	public IEnumerator raiseBalloonCoroutine;
@@ -213,17 +213,11 @@ public class ExperimentManager : MonoBehaviour
 		fAnimator3 = Agents[2].GetComponent<Animator>();
 		fAnimator4 = Agents[3].GetComponent<Animator>();
 		fAnimator5 = Agents[4].GetComponent<Animator>();
-		fAnimator6 = Agents[5].GetComponent<Animator>();
-		fAnimator7 = Agents[6].GetComponent<Animator>();
-		fAnimator8 = Agents[7].GetComponent<Animator>();
         // Male animators ------------------------------------------------------------------------------------------------------------------
 		mAnimator1 = Agents[8].GetComponent<Animator>();
 		mAnimator2 = Agents[9].GetComponent<Animator>();
 		mAnimator3 = Agents[10].GetComponent<Animator>();
 		mAnimator4 = Agents[11].GetComponent<Animator>();
-		mAnimator5 = Agents[12].GetComponent<Animator>();
-		mAnimator6 = Agents[13].GetComponent<Animator>();
-		mAnimator7 = Agents[14].GetComponent<Animator>();
 		pAnimator = Participant.GetComponent<Animator>();
 		// yield return null;	
 
@@ -266,54 +260,24 @@ public class ExperimentManager : MonoBehaviour
 		int ct=0;
 		for (int i1 = 1; i1 <= 10; i1++) 
 		{
-			for (int j1 = 1; j1 <= 6; j1++) 
+			for (int j1 = 1; j1 <= 3; j1++) 
 			{
-				numbers.Add(j1*Mathf.Pow(-1,j1)*12f);
-				xPos.Add(((i1*0.7f+3)*Mathf.Sin((j1*Mathf.Pow(-1,j1)*12f)*(Mathf.PI)/180f)));
-				zPos.Add((-(i1*0.7f+3)*Mathf.Cos((j1*Mathf.Pow(-1,j1)*12f)*(Mathf.PI)/180f)));
-				print("CT:  "+xPos[ct]+"  ,  "+zPos[ct]);
+				xPos.Add((i1*0.7f+4.5f+Random.Range(-1.5f,1.5f))*Mathf.Sin(((2*j1-1)*(10f+Random.Range(-2f,2f)))*(Mathf.PI)/180f));
+				zPos.Add(-(i1*0.7f+4.5f+Random.Range(-1.5f,1.5f))*Mathf.Cos(((2*j1-1)*(10f+Random.Range(-2f,2f)))*(Mathf.PI)/180f));
+				ct++;
+				xPos.Add(-(i1*0.7f+4.5f+Random.Range(-1.5f,1.5f))*Mathf.Sin(((2*j1-1)*(10f+Random.Range(-2f,2f)))*(Mathf.PI)/180f));
+				zPos.Add(-(i1*0.7f+4.5f+Random.Range(-1.5f,1.5f))*Mathf.Cos(((2*j1-1)*(10f+Random.Range(-2f,2f)))*(Mathf.PI)/180f));
 				ct++;
 			}
 		}
 		Shuffle(xPos);
 		Shuffle(zPos);
-
-			
-		// for (int j1 = 1; j1 <= 10; j1++) // Loop from 1 to 6
-        // {
-            // for (int j2 = 0; j2 < 6; j2++) // Add each number 10 times
-            // {
-				// Numbers.Add(j1);			//radial
-				// // cnt2++;
-            // }
-        // }
-		// print("CNTTTTTTTTTTTTT: "+cnt1+"  ,  "+cnt2);
-		
-		// Shuffle(numbers);
-		// Shuffle(Numbers);
-		// for(int num=0; num<=60; num++)
-        // {
-            // print("num:  "+numbers[num]+"  ,  "+Numbers[num]);
-        // }
-        // Optional: Print the shuffled numbers to the console to verify
         
 
 		
 		for (int counter = 0; counter < 60; counter++)
         {
-            // myPos[counter] = new Vector3((i1 * gridSpacing + randomXOffset-3500)/1000, -0.24f, (i2 * gridSpacing + randomZOffset+6000)/-6000);	
-	
-				
-				
-			// shuffledAnglesArrayHuge=(2*Random.Range(0,3)+1)*Random.Range(-1f,1f)*12;
-			// shuffledAnglesArrayHuge=numbers[counter]*12f;
-			// print("Array:  "+shuffledAnglesArrayHuge);
-			// shuffledRadiusArrayHuge=Random.Range(3f,10f);
-			// shuffledRadiusArrayHuge=Numbers[counter]*.7f+5f;
-			// xPos[counter]=shuffledRadiusArray*Mathf.Sin(shuffledAnglesArray*(Mathf.PI)/180f);
-			// zPos[counter]=-shuffledRadiusArray*Mathf.Cos(shuffledAnglesArray*(Mathf.PI)/180f);
 			myPos[counter] = new Vector3(xPos[counter], -0.24f, zPos[counter]);
-			print("CNTTTTTTTTTTTTT: "+counter+"  ,  "+myPos[counter]);	
             yield return null; // Yield each iteration
         }
 		StartCoroutine(InstantiateAvatars());
@@ -338,7 +302,7 @@ public class ExperimentManager : MonoBehaviour
 		myAvatars = new GameObject[6 * 10];
 		
 		int posCounter = 0;
-        for (int i3 = 0; i3 < 6 * 10; i3++)			// in this loop, I make a list of numbers between 0 and expected total number of avatars
+        for (int i3 = 0; i3 < 60; i3++)			// in this loop, I make a list of numbers between 0 and expected total number of avatars
         {
             posList[i3] = i3;
 			randomList[i3] = i3;
@@ -351,120 +315,32 @@ public class ExperimentManager : MonoBehaviour
 			if(position[1]!=0)
 			{
 				GameObject newAvatar = Instantiate(avatarPrefabs[(i3 % 9)], myPos[i3], Quaternion.identity);
-				// GameObject newAvatar = Instantiate(avatarPrefabs[0], position, Quaternion.identity);
 				newAvatar.transform.Rotate(0f, 180.0f, 0.0f, Space.World);
 				newAvatar.transform.localScale = new Vector3(0.01f, 0.01f, 0.01f);
 				Animator newAnimator = newAvatar.GetComponent<Animator>();
-				// print(row * (stimSize) +(k2)*(avatarPrefabs.Length) +k1);
 				Animators[i3]=newAnimator;
 				myAvatars[i3]=newAvatar;
-				// print(row * (stimSize) +(k2)*(avatarPrefabs.Length)+k1);
-				// ApplyRandomColorVariation(row * (stimSize) +(k2)*(avatarPrefabs.Length)+k1,newAvatar);
 				Animators[i3].SetInteger("LR", 0);
-				print("position:  "+i3+"  ,  "+avatarCounter+"  ,  "+position);
-
-				// newAvatar.tag = $"agent{avatarCounter + 1}";
-				// ChangeGlovesColor(newAvatar.transform);
 				avatarCounter++;
 			}
-			
-			
             yield return null; // Yield each iteration
         }
 
-        // int totalAvatars = avatarPrefabs.Length * numberOfDuplicates;
-        // int posCounter = 0;
-		// in this nested loop, first, we shuffle the elements of "posList", so that copies of each avatar be located randomly, not in a queue behid that avatar. Then, we copy 
-		// original avatars as new avatars, call their animators, and change the color of their clothes randomly!
-        // int k1, k2;
-		// for (int row = 0; row < 6; row++)		
-		// {
-            // for (int i = 0; i < 10; i++)
-            // {
-				// if (i<15)
-				// {
-					// k1=i;
-					// k2=0;
-				// }
-				// else
-				// {
-					// k1=i % (avatarPrefabs.Length);
-					// k2=Mathf.FloorToInt(i/(avatarPrefabs.Length));
-					// // print(k1+"  ,  "+k2);
-				// }
-                // // int posIndex = Random.Range(0, stimSize * stimSize - posCounter);
-				// // int randomIndex = Random.Range(0, stimSize * stimSize - posCounter);
-                
-                // Vector3 position = myPos[posCounter];
-				
-                // // posList[posIndex] = posList[stimSize * stimSize - posCounter];
-				// // randomList[posIndex] = randomList[stimSize * stimSize - posCounter];
-				
-				// if(position[1]!=0)
-				// {
-					// GameObject newAvatar = Instantiate(avatarPrefabs[k1], position, Quaternion.identity);
-					// newAvatar.transform.Rotate(0f, 180.0f, 0.0f, Space.World);
-					// newAvatar.transform.localScale = new Vector3(0.01f, 0.01f, 0.01f);
-					// Animator newAnimator = newAvatar.GetComponent<Animator>();
-					// // print(row * (stimSize) +(k2)*(avatarPrefabs.Length) +k1);
-					// Animators[posCounter]=newAnimator;
-					// myAvatars[posCounter]=newAvatar;
-					// // print(row * (stimSize) +(k2)*(avatarPrefabs.Length)+k1);
-					// // ApplyRandomColorVariation(row * (stimSize) +(k2)*(avatarPrefabs.Length)+k1,newAvatar);
-					// Animators[posCounter].SetInteger("LR", 0);
-					// print("position:  "+posCounter+"  ,  "+position);
-
-					// // newAvatar.tag = $"agent{avatarCounter + 1}";
-					// // ChangeGlovesColor(newAvatar.transform);
-					// avatarCounter++;
-				// }
-				// posCounter++;
-                // yield return null; // Yield each iteration
-            // }
-        // }
 		// Step 3: Deactivate original avatars
         DeactivateOriginalAvatars();
 		// Int his loop, we assign a name for each animator, and initiate the animators. "LR" is the parameter that when is not zero starts the animation in the idle mode!
-		for (int j = 0; j< (stimSize*stimSize);j++)
+		for (int j = 0; j< 60;j++)
 		{
 			Animators[j].gameObject.name="Animator"+(j+1);
 			// Animators[j].SetInteger("LR", RightLeft[j]);
 		}
-		
 		// yield return StartCoroutine(ControlAvatars(myAvatars));		                               // "StartCoroutine" is a coroutine that controls the timing of the actions of avatars
 		C1=ExperimentStructure();
 		StartCoroutine(C1);
 		yield return null;	
 		
     }
-	
-	// private void ApplyRandomColorVariation(int q, GameObject newAvatar)
-    // {
-		// // ChangeGlovesColor(newAvatar.transform);
-		// newAvatar=myAvatars[q];
-        // foreach (Renderer renderer in newAvatar.GetComponentsInChildren<Renderer>())
-        // {
-            // if (!renderer.gameObject.name.Contains("Body") && 
-                // !renderer.gameObject.name.Contains("Hair") && 
-                // !renderer.gameObject.name.Contains("Eye"))
-            // {
-				// // print(renderer.gameObject.name);
-                // Material[] newMaterials = new Material[renderer.materials.Length];
-                // for (int i = 0; i < renderer.materials.Length; i++)
-                // {
-                    // Material newMaterial = Instantiate(clothingMaterialTemplates[Random.Range(0, clothingMaterialTemplates.Length)]);
 
-                    // Color randomColor = GenerateNonYellowBlue();
-                    // newMaterial.color = randomColor;
-					// newMaterials[i] = newMaterial;
-                // }
-                // renderer.materials = newMaterials;
-			// }	
-        // }
-		// // ChangeGlovesColor(newAvatar.transform);
-    // }
-	
-	
 	private void DeactivateOriginalAvatars()
     {
         for (int i = 0; i < avatarPrefabs.Length; i++)
@@ -576,70 +452,20 @@ public class ExperimentManager : MonoBehaviour
 	#region Experiment Structure coroutine
 	IEnumerator ExperimentStructure()
     {	
-		// Step 1: Generate Positions
-        // StartCoroutine(GeneratePositions());
-		
-		
-		// CanvasObject.GetComponent<Canvas>().enabled = true;
-		// CanvasBKG.GetComponent<SpriteRenderer>().enabled = true;
-		// Instruction2.SetActive(true);
-		
-		
-        // Step 2: Instantiate Avatars
-        // StartCoroutine(InstantiateAvatars());
-		
-				
-		// for(int a = 0; a < 15; a++)
-		// {
-			// Agents[a].SetActive(true);
-		// }
-		// yield return new WaitForSeconds(30f);
-		// CanvasBKG.GetComponent<SpriteRenderer>().enabled = false;
-		// Instruction2.SetActive(false);
-		// CanvasObject.GetComponent<Canvas>().enabled = false;
-
 		responses = new float[400,10];		// The array that we are going to store the parameters of the experiment and participants' responses in it
-		// Modifying the density of the group ==================================================================================================
-		// Center of the circles for positioning agents, participant is 1 unit behind the center, right wall 9 units and left wall 9 units away. 
-		// Then, maximum radius can be 9. However, agents must keep a little distance from the walls, otherwise they go into the wall, like ghosts
-		// Right hand to left hand open-arm distance: 2 units
-		// Just a note for myself, I think the best values for the Rmin and Rmax are as follows:
-		Rmax=9f;	// low-density
-		Rmin=3.3f;	// high-density
 		
-		// shuffledAnglesArray=new List<float>{-56f,-32f,-8f,16f,40f,-48f,-24f,0f,24f,48f,-40f,-16f,8f,32f,56f};
-		shuffledAnglesArray=new List<float>{-56f,56f,-32f,32f,-8f,8f,-48f,48f,-24f,24f,0f,-40f,40f,-16f,16f};
-		for(int a = 0; a < 15; a++)
-		{
-			shuffledAnglesArray[a]=shuffledAnglesArray[a]+Random.Range(-2f,2f);
-		}
-		Rp=(Rmin+Rmax)/2;
-		R=Rp;		// radius of the group in practice session
-		shuffledRadiusArray=new List<float>{R/3,R/3,R/3,R/3,R/3,2*R/3,2*R/3,2*R/3,2*R/3,2*R/3,R,R,R,R,R};
-		for(int a = 0; a < 15; a++)
-		{
-			shuffledRadiusArray[a]=shuffledRadiusArray[a]+Random.Range(-1f,1f)*0.3f*R/3;
-		}
 		
-		xPos=new List<float>{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
-		zPos=new List<float>{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
-		for(int b = 0; b < 15; b++)
-		{
-			xPos[b]=shuffledRadiusArray[b]*Mathf.Sin(shuffledAnglesArray[b]*(Mathf.PI)/180f);
-			zPos[b]=-shuffledRadiusArray[b]*Mathf.Cos(shuffledAnglesArray[b]*(Mathf.PI)/180f);
-			Agents[b].transform.position=new Vector3(xPos[b], -0.24f, zPos[b]);
-			// print("Pos:  "+xPos[b]+"  ,  "+zPos[b]);
-		} 
 		
 		trialCounter=0;
 		catchInd=0;
 		correctCount=0;
+		
 		for(int ip = 0; ip < numberOfPracticeTrials/2; ip++)		// practice session
 		{
 			raisedColor=0;
 			referenceTime1=Time.time;
 			SessionInd=1;						// SessionInd indicates the practice trials (1) and test trials (2)
-			trialCounter=trialCounter+1;
+			
 			
 			// fixationSign.SetActive(true);		// fixation cross is on for "fixationDuration" seconds
 			// yield return new WaitForSeconds(fixationDuration);
@@ -651,9 +477,8 @@ public class ExperimentManager : MonoBehaviour
 			
 			raiseHandCoroutine = RaiseHand(DominantColor);
 			StartCoroutine(raiseHandCoroutine);
-			// print("DominantColor"+DominantColor);
 			
-			while(!(Input.GetKey(KeyCode.RightArrow)|Input.GetKey(KeyCode.LeftArrow))& (Time.time-referenceTime1)<trialDuration)
+			while (!(Input.GetKey(KeyCode.RightArrow) || Input.GetKey(KeyCode.LeftArrow)) && (Time.time - referenceTime1) < trialDuration)
 			{
 				yield return new WaitForSeconds(Time.deltaTime);
 			}
@@ -671,7 +496,7 @@ public class ExperimentManager : MonoBehaviour
 			{
 				responses[trialCounter, 5] = 0;
 			}
-			
+			print("position!!!!!!!!!!!!!!!!!!!!!"+trialCounter);
 			responses[trialCounter,0]=SessionInd; 	// if index==1, it is practice session, else, it is test session
 			responses[trialCounter,1]=catchInd; 	// it is 1 if it is a catch. Otherwise, it is zero
 			responses[trialCounter,2]=R; 			// radius of the circle that agents are standing in it (lower R, higher density)
@@ -679,7 +504,6 @@ public class ExperimentManager : MonoBehaviour
 			responses[trialCounter,4]=LR; 			// right hand:2; left hand:1
 			responses[trialCounter,6]=Time.time-referenceTime1; 			// response time
 			responses[trialCounter,7]=DominantColor;
-			
 			
 			raisedColor=Mathf.Abs(responses[trialCounter,5]-InstructionPick);		// if 0: yellow raised; if 1: blue raised
 			
@@ -689,10 +513,10 @@ public class ExperimentManager : MonoBehaviour
 			CanvasObject.GetComponent<Canvas>().enabled = true;
 			CanvasBKG.GetComponent<SpriteRenderer>().enabled = true;
 			
-			for(int a = 0; a < 15; a++)
-			{
-				Agents[a].SetActive(false);
-			}
+			// for(int a = 0; a < 9; a++)
+			// {
+				// Agents[a].SetActive(false);
+			// }
 			if((responses[trialCounter, 5]!=0 & raisedColor==0 & DominantColor==1) | (responses[trialCounter, 5]!=0 & raisedColor==1 & DominantColor==2))
 			{
 				CorrectScreen.SetActive(true);
@@ -706,7 +530,8 @@ public class ExperimentManager : MonoBehaviour
 			{
 				MissedScreen.SetActive(true);
 			}
-			
+			print("position!!!!!!!!!!!!!!!!!!!!!"+trialCounter);
+			trialCounter=trialCounter+1;
 			// print("Responses:  "+responses[trialCounter,0]+ "  ,  "+responses[trialCounter,1]+"  ,  "+responses[trialCounter,2]+"  ,  "+responses[trialCounter,3]+"  ,  "+responses[trialCounter,4]+"  ,  "+responses[trialCounter,5]+"  ,  "+responses[trialCounter,6]+"  ,  "+responses[trialCounter,7]);
 			percentCorrect=correctCount/(trialCounter+0f);
 			// print("Responses:  "+responses[trialCounter,0]+ "  ,  "+responses[trialCounter,1]+"  ,  "+responses[trialCounter,2]+"  ,  "+responses[trialCounter,3]+"  ,  "+responses[trialCounter,4]+"  ,  "+responses[trialCounter,5]+"  ,  "+responses[trialCounter,6]+"  ,  "+responses[trialCounter,7]);
@@ -723,18 +548,18 @@ public class ExperimentManager : MonoBehaviour
 			WrongScreen.SetActive(false);
 			MissedScreen.SetActive(false);
 			CanvasObject.GetComponent<Canvas>().enabled = false;
-
-			for(int a = 0; a < 15; a++)
-			{
-				Agents[a].SetActive(true);
-			}
+			
+			// for(int a = 0; a < 9; a++)
+			// {
+				// Agents[a].SetActive(true);
+			// }
 		}
 		
 		// ========================================================
-		for(int a = 0; a < 15; a++)
-		{
-			Agents[a].SetActive(false);
-		}
+		// for(int a = 0; a < 9; a++)
+		// {
+			// Agents[a].SetActive(false);
+		// }
 		// for(int a = 7; a < 12; a++)
 		// {
 			// Agents[a].SetActive(false);
@@ -757,10 +582,10 @@ public class ExperimentManager : MonoBehaviour
 		Feedback10ScreenBad.SetActive(false);
 		CanvasObject.GetComponent<Canvas>().enabled = false;	
 		
-		for(int a = 0; a < 15; a++)
-		{
-			Agents[a].SetActive(true);
-		}		
+		// for(int a = 0; a < 9; a++)
+		// {
+			// Agents[a].SetActive(true);
+		// }		
 		// ========================================================
 		correctCount=0;	
 		for(int ip = numberOfPracticeTrials/2; ip < numberOfPracticeTrials; ip++)		// practice session
@@ -818,10 +643,10 @@ public class ExperimentManager : MonoBehaviour
 			CanvasObject.GetComponent<Canvas>().enabled = true;
 			CanvasBKG.GetComponent<SpriteRenderer>().enabled = true;
 			
-			for(int a = 0; a < 15; a++)
-			{
-				Agents[a].SetActive(false);
-			}
+			// for(int a = 0; a < 15; a++)
+			// {
+				// Agents[a].SetActive(false);
+			// }
 			if((responses[trialCounter, 5]!=0 & raisedColor==0 & DominantColor==1) | (responses[trialCounter, 5]!=0 & raisedColor==1 & DominantColor==2))
 			{
 				CorrectScreen.SetActive(true);
@@ -853,17 +678,17 @@ public class ExperimentManager : MonoBehaviour
 			MissedScreen.SetActive(false);
 			CanvasObject.GetComponent<Canvas>().enabled = false;
 
-			for(int a = 0; a < 15; a++)
-			{
-				Agents[a].SetActive(true);
-			}
+			// for(int a = 0; a < 15; a++)
+			// {
+				// Agents[a].SetActive(true);
+			// }
 		}
 		
 		// ========================================================
-		for(int a = 0; a < 15; a++)
-		{
-			Agents[a].SetActive(false);
-		}
+		// for(int a = 0; a < 15; a++)
+		// {
+			// Agents[a].SetActive(false);
+		// }
 		CanvasObject.GetComponent<Canvas>().enabled = true;
 		CanvasBKG.GetComponent<SpriteRenderer>().enabled = true;
 		if (percentCorrect>=0.75){
@@ -881,10 +706,10 @@ public class ExperimentManager : MonoBehaviour
 		Feedback20ScreenBad.SetActive(false);
 		CanvasObject.GetComponent<Canvas>().enabled = false;	
 		
-		for(int a = 0; a < 15; a++)
-		{
-			Agents[a].SetActive(true);
-		}	
+		// for(int a = 0; a < 15; a++)
+		// {
+			// Agents[a].SetActive(true);
+		// }	
 		// ========================================================
 		// after practice session and right before main session		
 		// for(int a = 0; a < 15; a++)
@@ -898,10 +723,10 @@ public class ExperimentManager : MonoBehaviour
 		// CanvasBKG.GetComponent<SpriteRenderer>().enabled = false;
 		// Instruction1.SetActive(false);
 		// CanvasObject.GetComponent<Canvas>().enabled = false;
-		for(int a = 0; a < 15; a++)
-		{
-			Agents[a].SetActive(true);
-		}
+		// for(int a = 0; a < 15; a++)
+		// {
+			// Agents[a].SetActive(true);
+		// }
 		// .....................................................
 		densitySelect=Random.Range(1,3);	// 1: high-density; 2: low-density
 		if (densitySelect==1)
@@ -917,25 +742,25 @@ public class ExperimentManager : MonoBehaviour
 		// Modifying the density of the group ==================================================================================================
 		// shuffledAnglesArray=new List<float>{-56f,-32f,-8f,16f,40f,-48f,-24f,0f,24f,48f,-40f,-16f,8f,32f,56f};
 		shuffledAnglesArray=new List<float>{-56f,56f,-32f,32f,-8f,8f,-48f,48f,-24f,24f,0f,-40f,40f,-16f,16f};
-		for(int a = 0; a < 15; a++)
-		{
-			shuffledAnglesArray[a]=shuffledAnglesArray[a]+Random.Range(-2f,2f);
-		}
+		// for(int a = 0; a < 15; a++)
+		// {
+			// shuffledAnglesArray[a]=shuffledAnglesArray[a]+Random.Range(-2f,2f);
+		// }
 		R=Rt1;	 // radius of the group in first test session
 		shuffledRadiusArray=new List<float>{R/3,R/3,R/3,R/3,R/3,2*R/3,2*R/3,2*R/3,2*R/3,2*R/3,R,R,R,R,R};
-		for(int a = 0; a < 15; a++)
-		{
-			shuffledRadiusArray[a]=shuffledRadiusArray[a]+Random.Range(-1f,1f)*0.3f*R/3;
-		}
+		// for(int a = 0; a < 15; a++)
+		// {
+			// shuffledRadiusArray[a]=shuffledRadiusArray[a]+Random.Range(-1f,1f)*0.3f*R/3;
+		// }
 		
 		xPos=new List<float>{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 		zPos=new List<float>{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
-		for(int b = 0; b < 15; b++)
-		{
-			xPos[b]=shuffledRadiusArray[b]*Mathf.Sin(shuffledAnglesArray[b]*(Mathf.PI)/180f);
-			zPos[b]=-shuffledRadiusArray[b]*Mathf.Cos(shuffledAnglesArray[b]*(Mathf.PI)/180f);
-			Agents[b].transform.position=new Vector3(xPos[b], -0.24f, zPos[b]);
-		} 
+		// for(int b = 0; b < 15; b++)
+		// {
+			// xPos[b]=shuffledRadiusArray[b]*Mathf.Sin(shuffledAnglesArray[b]*(Mathf.PI)/180f);
+			// zPos[b]=-shuffledRadiusArray[b]*Mathf.Cos(shuffledAnglesArray[b]*(Mathf.PI)/180f);
+			// Agents[b].transform.position=new Vector3(xPos[b], -0.24f, zPos[b]);
+		// } 
 		// ======================================================================================================================================
 
 		
@@ -948,25 +773,25 @@ public class ExperimentManager : MonoBehaviour
 			// Modifying the density of the group ==================================================================================================
 			// shuffledAnglesArray=new List<float>{-56f,-32f,-8f,16f,40f,-48f,-24f,0f,24f,48f,-40f,-16f,8f,32f,56f};
 			shuffledAnglesArray=new List<float>{-56f,56f,-32f,32f,-8f,8f,-48f,48f,-24f,24f,0f,-40f,40f,-16f,16f};
-			for(int a = 0; a < 15; a++)
-			{
-				shuffledAnglesArray[a]=shuffledAnglesArray[a]+Random.Range(-2f,2f);
-			}
-			R=Rt1;	 // radius of the group in second test session
-			shuffledRadiusArray=new List<float>{R/3,R/3,R/3,R/3,R/3,2*R/3,2*R/3,2*R/3,2*R/3,2*R/3,R,R,R,R,R};
-			for(int a = 0; a < 15; a++)
-			{
-				shuffledRadiusArray[a]=shuffledRadiusArray[a]+Random.Range(-1f,1f)*0.3f*R/3;
-			}
+			// for(int a = 0; a < 15; a++)
+			// {
+				// shuffledAnglesArray[a]=shuffledAnglesArray[a]+Random.Range(-2f,2f);
+			// }
+			// R=Rt1;	 // radius of the group in second test session
+			// shuffledRadiusArray=new List<float>{R/3,R/3,R/3,R/3,R/3,2*R/3,2*R/3,2*R/3,2*R/3,2*R/3,R,R,R,R,R};
+			// for(int a = 0; a < 15; a++)
+			// {
+				// shuffledRadiusArray[a]=shuffledRadiusArray[a]+Random.Range(-1f,1f)*0.3f*R/3;
+			// }
 			
-			xPos=new List<float>{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
-			zPos=new List<float>{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
-			for(int b = 0; b < 15; b++)
-			{
-				xPos[b]=shuffledRadiusArray[b]*Mathf.Sin(shuffledAnglesArray[b]*(Mathf.PI)/180f);
-				zPos[b]=-shuffledRadiusArray[b]*Mathf.Cos(shuffledAnglesArray[b]*(Mathf.PI)/180f);
-				Agents[b].transform.position=new Vector3(xPos[b], -0.24f, zPos[b]);
-			} 
+			// xPos=new List<float>{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+			// zPos=new List<float>{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+			// for(int b = 0; b < 15; b++)
+			// {
+				// xPos[b]=shuffledRadiusArray[b]*Mathf.Sin(shuffledAnglesArray[b]*(Mathf.PI)/180f);
+				// zPos[b]=-shuffledRadiusArray[b]*Mathf.Cos(shuffledAnglesArray[b]*(Mathf.PI)/180f);
+				// Agents[b].transform.position=new Vector3(xPos[b], -0.24f, zPos[b]);
+			// } 
 			for(int it1 = 0; it1 < numberOfTestTrials; it1++)		// practice session
 			{
 				referenceTime1=Time.time;
@@ -1018,10 +843,10 @@ public class ExperimentManager : MonoBehaviour
 			}
 			
 			// after block1
-			for(int a = 0; a < 15; a++)
-			{
-				Agents[a].SetActive(false);
-			}
+			// for(int a = 0; a < 15; a++)
+			// {
+				// Agents[a].SetActive(false);
+			// }
 			CanvasObject.GetComponent<Canvas>().enabled = true;
 			CanvasBKG.GetComponent<SpriteRenderer>().enabled = true;
 			Instruction2.SetActive(true);
@@ -1029,35 +854,35 @@ public class ExperimentManager : MonoBehaviour
 			CanvasBKG.GetComponent<SpriteRenderer>().enabled = false;
 			Instruction2.SetActive(false);
 			CanvasObject.GetComponent<Canvas>().enabled = false;
-			for(int a = 0; a < 15; a++)
-			{
-				Agents[a].SetActive(true);
-			}
+			// for(int a = 0; a < 15; a++)
+			// {
+				// Agents[a].SetActive(true);
+			// }
 			// ............................................
 			
 			
 			
 			// Modifying the density of the group ==================================================================================================
-			shuffledAnglesArray=new List<float>{-56f,-32f,-8f,16f,40f,-48f,-24f,0f,24f,48f,-40f,-16f,8f,32f,56f};
-			for(int a = 0; a < 15; a++)
-			{
-				shuffledAnglesArray[a]=shuffledAnglesArray[a]+Random.Range(-2f,2f);
-			}
-			R=Rt2;	 // radius of the group in second test session
-			shuffledRadiusArray=new List<float>{R/3,R/3,R/3,R/3,R/3,2*R/3,2*R/3,2*R/3,2*R/3,2*R/3,R,R,R,R,R};
-			for(int a = 0; a < 15; a++)
-			{
-				shuffledRadiusArray[a]=shuffledRadiusArray[a]+Random.Range(-1f,1f)*0.3f*R/3;
-			}
+			// shuffledAnglesArray=new List<float>{-56f,-32f,-8f,16f,40f,-48f,-24f,0f,24f,48f,-40f,-16f,8f,32f,56f};
+			// for(int a = 0; a < 15; a++)
+			// {
+				// shuffledAnglesArray[a]=shuffledAnglesArray[a]+Random.Range(-2f,2f);
+			// }
+			// R=Rt2;	 // radius of the group in second test session
+			// shuffledRadiusArray=new List<float>{R/3,R/3,R/3,R/3,R/3,2*R/3,2*R/3,2*R/3,2*R/3,2*R/3,R,R,R,R,R};
+			// for(int a = 0; a < 15; a++)
+			// {
+				// shuffledRadiusArray[a]=shuffledRadiusArray[a]+Random.Range(-1f,1f)*0.3f*R/3;
+			// }
 			
-			xPos=new List<float>{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
-			zPos=new List<float>{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
-			for(int b = 0; b < 15; b++)
-			{
-				xPos[b]=shuffledRadiusArray[b]*Mathf.Sin(shuffledAnglesArray[b]*(Mathf.PI)/180f)-.5f;
-				zPos[b]=-shuffledRadiusArray[b]*Mathf.Cos(shuffledAnglesArray[b]*(Mathf.PI)/180f);
-				Agents[b].transform.position=new Vector3(xPos[b], -0.24f, zPos[b]);
-			} 
+			// xPos=new List<float>{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+			// zPos=new List<float>{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+			// for(int b = 0; b < 15; b++)
+			// {
+				// xPos[b]=shuffledRadiusArray[b]*Mathf.Sin(shuffledAnglesArray[b]*(Mathf.PI)/180f)-.5f;
+				// zPos[b]=-shuffledRadiusArray[b]*Mathf.Cos(shuffledAnglesArray[b]*(Mathf.PI)/180f);
+				// Agents[b].transform.position=new Vector3(xPos[b], -0.24f, zPos[b]);
+			// } 
 			
 			
 			for(int it2 = 0; it2 < numberOfTestTrials; it2++)		// practice session
@@ -1113,10 +938,10 @@ public class ExperimentManager : MonoBehaviour
 			if (rund==0)
 			// if (rund==0 & it2 == numberOfTestTrials-1)
 			{
-				for(int a = 0; a < 15; a++)
-				{
-					Agents[a].SetActive(false);
-				}
+				// for(int a = 0; a < 15; a++)
+				// {
+					// Agents[a].SetActive(false);
+				// }
 				CanvasObject.GetComponent<Canvas>().enabled = true;
 				CanvasBKG.GetComponent<SpriteRenderer>().enabled = true;
 				Instruction2.SetActive(true);
@@ -1124,18 +949,18 @@ public class ExperimentManager : MonoBehaviour
 				CanvasBKG.GetComponent<SpriteRenderer>().enabled = false;
 				Instruction2.SetActive(false);
 				CanvasObject.GetComponent<Canvas>().enabled = false;
-				for(int a = 0; a < 15; a++)
-				{
-					Agents[a].SetActive(true);
-				}
+				// for(int a = 0; a < 15; a++)
+				// {
+					// Agents[a].SetActive(true);
+				// }
 			}
 		}
 		
 		
-		for(int a = 0; a < 15; a++)
-		{
-			Agents[a].SetActive(false);
-		}
+		// for(int a = 0; a < 15; a++)
+		// {
+			// Agents[a].SetActive(false);
+		// }
 		CanvasObject.GetComponent<Canvas>().enabled = true;
 		CanvasBKG.GetComponent<SpriteRenderer>().enabled = true;
 		Thank.SetActive(true);
@@ -1206,53 +1031,53 @@ public class ExperimentManager : MonoBehaviour
 		// =================================================================================================================================
 		// if in each trial a random number of agents (any number between 1 and 15) respond ================================================
 		// =================================================================================================================================
-		OriginalArray=new List<int>{1,2,3,4,5,6,7,8,9,10,11,12,13,14,15};
-		shuffledArray=new List<int>{};		// a shuffled array of all the numbers between 1 and 15
-		for (int n=15; n>0;n--)
-		{
-			randomIndex=Random.Range(0,n);		// we have 15 agents. A number of them respond in each trial
-			shuffledArray.Add(OriginalArray[randomIndex]);
-			OriginalArray.RemoveAt(randomIndex);
-		}
+		// OriginalArray=new List<int>{1,2,3,4,5,6,7,8,9,10,11,12,13,14,15};
+		// shuffledArray=new List<int>{};		// a shuffled array of all the numbers between 1 and 15
+		// for (int n=15; n>0;n--)
+		// {
+			// randomIndex=Random.Range(0,n);		// we have 15 agents. A number of them respond in each trial
+			// shuffledArray.Add(OriginalArray[randomIndex]);
+			// OriginalArray.RemoveAt(randomIndex);
+		// }
 		// numberOfAgents=Random.Range(0,3)*5+3;		// either 3, or 8 or 13 agents respond.
 		numberOfAgents=Random.Range(1,3)*3+1;		// 1, 4, or 7 agents respond.
-		if (numberOfAgents==4)
-		{
-			for (int Ndis=0; Ndis<14;Ndis++)
-			{
-				distance.Add(Vector3.Distance(Agents[14].transform.position, Agents[Ndis].transform.position));
-			}
-			distanceSorted = distance.OrderBy(n => n).ToList();
-			// for (int mm=0;mm<14;mm++)
-				// print(distance[mm]+ "  ,  "+distanceSorted[mm]);
-			
-			// for (int nn=0; nn<3;nn++)
+		// if (numberOfAgents==4)
+		// {
+			// for (int Ndis=0; Ndis<14;Ndis++)
 			// {
-				// print(distance.IndexOf(distanceSorted[nn]));
+				// distance.Add(Vector3.Distance(Agents[14].transform.position, Agents[Ndis].transform.position));
 			// }
-		}
-		else if (numberOfAgents==7)
-		{
-			for (int Ndis=0; Ndis<14;Ndis++)
-			{
-				distance.Add(Vector3.Distance(Agents[14].transform.position,Agents[Ndis].transform.position));
-			}
-			distanceSorted = distance.OrderBy(n => n).ToList();
-			// for (int mm=0;mm<14;mm++)
-				// print(distance[mm]+ "  ,  "+distanceSorted[mm]);
+			// distanceSorted = distance.OrderBy(n => n).ToList();
+			// // for (int mm=0;mm<14;mm++)
+				// // print(distance[mm]+ "  ,  "+distanceSorted[mm]);
 			
-			// for (int nn=0; nn<6;nn++)
+			// // for (int nn=0; nn<3;nn++)
+			// // {
+				// // print(distance.IndexOf(distanceSorted[nn]));
+			// // }
+		// }
+		// else if (numberOfAgents==7)
+		// {
+			// for (int Ndis=0; Ndis<14;Ndis++)
 			// {
-				// print(distance.IndexOf(distanceSorted[nn]));
+				// distance.Add(Vector3.Distance(Agents[14].transform.position,Agents[Ndis].transform.position));
 			// }
-		}
+			// distanceSorted = distance.OrderBy(n => n).ToList();
+			// // for (int mm=0;mm<14;mm++)
+				// // print(distance[mm]+ "  ,  "+distanceSorted[mm]);
+			
+			// // for (int nn=0; nn<6;nn++)
+			// // {
+				// // print(distance.IndexOf(distanceSorted[nn]));
+			// // }
+		// }
 
-		respondingAgents=new List<int>{};
-		for (int n = 0; n < numberOfAgents; n++)
-		{
-			respondingAgents.Add(shuffledArray[n]);	
-			// print("RS: "+shuffledArray[n]);
-		}
+		// respondingAgents=new List<int>{};
+		// for (int n = 0; n < numberOfAgents; n++)
+		// {
+			// respondingAgents.Add(shuffledArray[n]);	
+			// // print("RS: "+shuffledArray[n]);
+		// }
 		
 		// =================================================================================================================================
 			if (LR==1)	// Agents are supposed to raise their left hand --------------------------------------------------------------------
@@ -1260,7 +1085,8 @@ public class ExperimentManager : MonoBehaviour
 				for (int n = 0; n < numberOfAgents; n++)
 				{
 					
-					Rem=respondingAgents[n] % 15;
+					// Rem=respondingAgents[n] % 15;
+					Rem=1;
 					switch (Rem)
 					{
 						case 1:
@@ -1330,7 +1156,8 @@ public class ExperimentManager : MonoBehaviour
 			{
 				for (int n = 0; n < numberOfAgents; n++)
 				{
-					switch (respondingAgents[n])
+					// switch (respondingAgents[n])
+					switch (Rem)
 					{
 						case 1:
 							RightLeftF1=Random.Range(7,9);	 // choose a random number between 7 and 8 (we have 3 animations for females raising right hand)
@@ -1395,24 +1222,31 @@ public class ExperimentManager : MonoBehaviour
 					}	
 				}
 			}
-			
+			for(int a=0; a<60; a++)
+			{
+				if (a % 15==1)
+				{
+					Animators[a].SetInteger("FLR", RightLeftF1);
+					print("xxxxxxxxxxxxxxxxxxx");
+				}
+			}
 			// Starting	idle position of all the avatars ---------------------------------------------------------------------------------------
 			#region  StartIdle			
 			// "F" for female idles ------------------------------------------------------------------------------------------------------------
 			// Warning: for each avatar the value of "F", "FLR", "FI", and "RestartF" must be the same *****************************************
 			// pAnimator.SetInteger("F", 0);
-			fAnimator1.SetInteger("F", RightLeftF1); fAnimator2.SetInteger("F", RightLeftF2); fAnimator3.SetInteger("F", RightLeftF3); fAnimator4.SetInteger("F", RightLeftF4); fAnimator5.SetInteger("F", RightLeftF5); fAnimator6.SetInteger("F", RightLeftF6); fAnimator7.SetInteger("F", RightLeftF7); fAnimator8.SetInteger("F", RightLeftF8);
+			fAnimator1.SetInteger("F", RightLeftF1); fAnimator2.SetInteger("F", RightLeftF2); fAnimator3.SetInteger("F", RightLeftF3); fAnimator4.SetInteger("F", RightLeftF4); fAnimator5.SetInteger("F", RightLeftF5); 
 			// "M" for male idles --------------------------------------------------------------------------------------------------------------
 			// Warning: for each avatar the value of "M", "MLR", "MI", and "RestartM" must be the same *****************************************
-			mAnimator1.SetInteger("M", RightLeftM1); mAnimator2.SetInteger("M", RightLeftM2); mAnimator3.SetInteger("M", RightLeftM3); mAnimator4.SetInteger("M", RightLeftM4); mAnimator5.SetInteger("M", RightLeftM5); mAnimator6.SetInteger("M", RightLeftM6); mAnimator7.SetInteger("M", RightLeftM7);
+			mAnimator1.SetInteger("M", RightLeftM1); mAnimator2.SetInteger("M", RightLeftM2); mAnimator3.SetInteger("M", RightLeftM3); mAnimator4.SetInteger("M", RightLeftM4); 
 			#endregion
 			// =================================================================================================================================
 			yield return new WaitForSeconds(agentsRHTime);		// wait for "agentsRHTime", then the agents raise their hand -------------------
 			#region RaiseHand
 			// Female avatars raise hand. "FLR" for female raise hand; FLR1~FLR6: left hand; FLR7~FLR9: right hand -----------------------------
-			fAnimator1.SetInteger("FLR", RightLeftF1);fAnimator2.SetInteger("FLR", RightLeftF2);fAnimator3.SetInteger("FLR", RightLeftF3);fAnimator4.SetInteger("FLR", RightLeftF4);fAnimator5.SetInteger("FLR", RightLeftF5);fAnimator6.SetInteger("FLR", RightLeftF6);fAnimator7.SetInteger("FLR", RightLeftF7);fAnimator8.SetInteger("FLR", RightLeftF8);
+			fAnimator1.SetInteger("FLR", RightLeftF1);fAnimator2.SetInteger("FLR", RightLeftF2);fAnimator3.SetInteger("FLR", RightLeftF3);fAnimator4.SetInteger("FLR", RightLeftF4);fAnimator5.SetInteger("FLR", RightLeftF5);
 			// Male avatars raise hand. "MLR" for male raise hand; MLR1~MLR6: left hand; MLR7~MLR13: right hand --------------------------------
-			mAnimator1.SetInteger("MLR", RightLeftM1);mAnimator2.SetInteger("MLR", RightLeftM2);mAnimator3.SetInteger("MLR", RightLeftM3);mAnimator4.SetInteger("MLR", RightLeftM4);mAnimator5.SetInteger("MLR", RightLeftM5);mAnimator6.SetInteger("MLR", RightLeftM6);mAnimator7.SetInteger("MLR", RightLeftM7);
+			mAnimator1.SetInteger("MLR", RightLeftM1);mAnimator2.SetInteger("MLR", RightLeftM2);mAnimator3.SetInteger("MLR", RightLeftM3);mAnimator4.SetInteger("MLR", RightLeftM4);
 			print("handup"+numberOfAgents);
 			#endregion
 			
@@ -1423,10 +1257,10 @@ public class ExperimentManager : MonoBehaviour
 			yield return new WaitForSeconds(agentsHUDuration);	// the duration that agents keep their hands up --------------------------------
 			#region LowerHand
 			// Female avatars lower their hands and go back to idle phase. "FI" for female lower hand; FI1~FI6: left hand; FI7~FI9: right hand -
-			fAnimator1.SetInteger("FI", RightLeftF1);fAnimator2.SetInteger("FI", RightLeftF2);fAnimator3.SetInteger("FI", RightLeftF3);fAnimator4.SetInteger("FI", RightLeftF4);fAnimator5.SetInteger("FI", RightLeftF5);fAnimator6.SetInteger("FI", RightLeftF6);fAnimator7.SetInteger("FI", RightLeftF7);fAnimator8.SetInteger("FI", RightLeftF8);
+			fAnimator1.SetInteger("FI", RightLeftF1);fAnimator2.SetInteger("FI", RightLeftF2);fAnimator3.SetInteger("FI", RightLeftF3);fAnimator4.SetInteger("FI", RightLeftF4);fAnimator5.SetInteger("FI", RightLeftF5);
 			// =================================================================================================================================
 			// Male avatars lower their hands and go back to idle phase. "MI" for male lower hand; MI1~MI6: left hand; MI7~M13: right hand -----
-			mAnimator1.SetInteger("MI", RightLeftM1);mAnimator2.SetInteger("MI", RightLeftM2);mAnimator3.SetInteger("MI", RightLeftM3);mAnimator4.SetInteger("MI", RightLeftM4);mAnimator5.SetInteger("MI", RightLeftM5);mAnimator6.SetInteger("MI", RightLeftM6);mAnimator7.SetInteger("MI", RightLeftM7);
+			mAnimator1.SetInteger("MI", RightLeftM1);mAnimator2.SetInteger("MI", RightLeftM2);mAnimator3.SetInteger("MI", RightLeftM3);mAnimator4.SetInteger("MI", RightLeftM4);
 			print("handdown");
 			#endregion
 			// =================================================================================================================================
@@ -1436,9 +1270,9 @@ public class ExperimentManager : MonoBehaviour
 			// *********************************************************************************************************************************
 			// At the end of each trial we need to reset all the avatars to their first pose, to get ready for the next trial ------------------
 			// "RestartF" to reset female avatars; RestartF1~RestartF9 -------------------------------------------------------------------------
-			fAnimator1.SetInteger("RestartF", RightLeftF1);fAnimator2.SetInteger("RestartF", RightLeftF2);fAnimator3.SetInteger("RestartF", RightLeftF3);fAnimator4.SetInteger("RestartF", RightLeftF4);fAnimator5.SetInteger("RestartF", RightLeftF5);fAnimator6.SetInteger("RestartF", RightLeftF6);fAnimator7.SetInteger("RestartF", RightLeftF7);fAnimator8.SetInteger("RestartF", RightLeftF8);
+			fAnimator1.SetInteger("RestartF", RightLeftF1);fAnimator2.SetInteger("RestartF", RightLeftF2);fAnimator3.SetInteger("RestartF", RightLeftF3);fAnimator4.SetInteger("RestartF", RightLeftF4);fAnimator5.SetInteger("RestartF", RightLeftF5);
 			// "RestartM" to reset female avatars; RestartM1~RestartM13 ------------------------------------------------------------------------
-			mAnimator1.SetInteger("RestartM", RightLeftM1);mAnimator2.SetInteger("RestartM", RightLeftM2);mAnimator3.SetInteger("RestartM", RightLeftM3);mAnimator4.SetInteger("RestartM", RightLeftM4);mAnimator5.SetInteger("RestartM", RightLeftM5);mAnimator6.SetInteger("RestartM", RightLeftM6);mAnimator7.SetInteger("RestartM", RightLeftM7);
+			mAnimator1.SetInteger("RestartM", RightLeftM1);mAnimator2.SetInteger("RestartM", RightLeftM2);mAnimator3.SetInteger("RestartM", RightLeftM3);mAnimator4.SetInteger("RestartM", RightLeftM4);
 			print("reset");
 			// PlayerRightHand.transform.TransformPoint(PlayerRightHand.transform.position )=new Vector3(3.86f, 3.96f, -11.6f);
 			// PlayerRightHand.localRotation=new Vector3(3.86f, 3.96f, -11.6f);
@@ -1451,25 +1285,25 @@ public class ExperimentManager : MonoBehaviour
 			// on the next trial ---------------------------------------------------------------------------------------------------------------
 			// *********************************************************************************************************************************
 			// pAnimator.SetInteger("F", 0);
-			fAnimator1.SetInteger("F", 0);fAnimator2.SetInteger("F", 0);fAnimator3.SetInteger("F", 0);fAnimator4.SetInteger("F", 0);fAnimator5.SetInteger("F", 0);fAnimator6.SetInteger("F", 0);fAnimator7.SetInteger("F", 0);fAnimator8.SetInteger("F", 0);
+			fAnimator1.SetInteger("F", 0);fAnimator2.SetInteger("F", 0);fAnimator3.SetInteger("F", 0);fAnimator4.SetInteger("F", 0);fAnimator5.SetInteger("F", 0);
 			// ---------------------------------------------------------------------------------------------------------------------------------
-			mAnimator1.SetInteger("M", 0);mAnimator2.SetInteger("M", 0);mAnimator3.SetInteger("M", 0);mAnimator4.SetInteger("M", 0);mAnimator5.SetInteger("M", 0);mAnimator6.SetInteger("M", 0);mAnimator7.SetInteger("M", 0);
+			mAnimator1.SetInteger("M", 0);mAnimator2.SetInteger("M", 0);mAnimator3.SetInteger("M", 0);mAnimator4.SetInteger("M", 0);
 			// =================================================================================================================================
-			fAnimator1.SetInteger("FLR", 0);fAnimator2.SetInteger("FLR", 0);fAnimator3.SetInteger("FLR", 0);fAnimator4.SetInteger("FLR", 0);fAnimator5.SetInteger("FLR", 0);fAnimator6.SetInteger("FLR", 0);fAnimator7.SetInteger("FLR", 0);fAnimator8.SetInteger("FLR", 0);
+			fAnimator1.SetInteger("FLR", 0);fAnimator2.SetInteger("FLR", 0);fAnimator3.SetInteger("FLR", 0);fAnimator4.SetInteger("FLR", 0);fAnimator5.SetInteger("FLR", 0);
 			// ---------------------------------------------------------------------------------------------------------------------------------
-			mAnimator1.SetInteger("MLR", 0);mAnimator2.SetInteger("MLR", 0);mAnimator3.SetInteger("MLR", 0);mAnimator4.SetInteger("MLR", 0);mAnimator5.SetInteger("MLR", 0);mAnimator6.SetInteger("MLR", 0);mAnimator7.SetInteger("MLR", 0);
+			mAnimator1.SetInteger("MLR", 0);mAnimator2.SetInteger("MLR", 0);mAnimator3.SetInteger("MLR", 0);mAnimator4.SetInteger("MLR", 0);
 			// =================================================================================================================================
-			fAnimator1.SetInteger("FI", 0);fAnimator2.SetInteger("FI", 0);fAnimator3.SetInteger("FI", 0);fAnimator4.SetInteger("FI", 0);fAnimator5.SetInteger("FI", 0);fAnimator6.SetInteger("FI", 0);fAnimator7.SetInteger("FI", 0);fAnimator8.SetInteger("FI", 0);
+			fAnimator1.SetInteger("FI", 0);fAnimator2.SetInteger("FI", 0);fAnimator3.SetInteger("FI", 0);fAnimator4.SetInteger("FI", 0);fAnimator5.SetInteger("FI", 0);
 			// ---------------------------------------------------------------------------------------------------------------------------------
-			mAnimator1.SetInteger("MI", 0);mAnimator2.SetInteger("MI", 0);mAnimator3.SetInteger("MI", 0);mAnimator4.SetInteger("MI", 0);mAnimator5.SetInteger("MI", 0);mAnimator6.SetInteger("MI", 0);mAnimator7.SetInteger("MI", 0);
+			mAnimator1.SetInteger("MI", 0);mAnimator2.SetInteger("MI", 0);mAnimator3.SetInteger("MI", 0);mAnimator4.SetInteger("MI", 0);
 			// =================================================================================================================================
-			RightLeftF1=0; RightLeftF2=0; RightLeftF3=0; RightLeftF4=0; RightLeftF5=0; RightLeftF6=0; RightLeftF7=0; RightLeftF8=0;
-			RightLeftM1=0; RightLeftM2=0; RightLeftM3=0; RightLeftM4=0;RightLeftM5=0; RightLeftM6=0;RightLeftM7=0; 
+			RightLeftF1=0; RightLeftF2=0; RightLeftF3=0; RightLeftF4=0; RightLeftF5=0; 
+			RightLeftM1=0; RightLeftM2=0; RightLeftM3=0; RightLeftM4=0;
 			yield return new WaitForSeconds(1f);
 			// =================================================================================================================================
-			fAnimator1.SetInteger("RestartF", 0);fAnimator2.SetInteger("RestartF", 0);fAnimator3.SetInteger("RestartF", 0);fAnimator4.SetInteger("RestartF", 0);fAnimator5.SetInteger("RestartF", 0);fAnimator6.SetInteger("RestartF", 0);fAnimator7.SetInteger("RestartF", 0);fAnimator8.SetInteger("RestartF", 0);
+			fAnimator1.SetInteger("RestartF", 0);fAnimator2.SetInteger("RestartF", 0);fAnimator3.SetInteger("RestartF", 0);fAnimator4.SetInteger("RestartF", 0);fAnimator5.SetInteger("RestartF", 0);
 			// ---------------------------------------------------------------------------------------------------------------------------------
-			mAnimator1.SetInteger("RestartM", 0);mAnimator2.SetInteger("RestartM", 0);mAnimator3.SetInteger("RestartM", 0);mAnimator4.SetInteger("RestartM", 0);mAnimator5.SetInteger("RestartM", 0);mAnimator6.SetInteger("RestartM", 0);mAnimator7.SetInteger("RestartM", 0);
+			mAnimator1.SetInteger("RestartM", 0);mAnimator2.SetInteger("RestartM", 0);mAnimator3.SetInteger("RestartM", 0);mAnimator4.SetInteger("RestartM", 0);
 			print("end");
 			#endregion
 		// }
@@ -1550,12 +1384,7 @@ public class ExperimentManager : MonoBehaviour
 			CanvasObject.GetComponent<Canvas>().enabled = false;
 			CanvasBKG.GetComponent<SpriteRenderer>().enabled = false;
 			Input.ResetInputAxes();
-			print(111111111111111111);
 			StartCoroutine(GeneratePositions());
-			print(222222222222222222);
-			// C1=ExperimentStructure();
-			// StartCoroutine(C1);
 		}
-		//ExpManager.SetActive(true);
 	}
 }
