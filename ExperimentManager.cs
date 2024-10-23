@@ -26,7 +26,7 @@ public class ExperimentManager : MonoBehaviour
 	private string prolificIdString2;
 	public GameObject prolificID;
 	public GameObject CanvasObject;
-	public GameObject CanvasBKG;
+	public GameObject BKG;
 	public GameObject myButton;
 	// public Button myButton;
 	public int InstructionPick;
@@ -60,9 +60,6 @@ public class ExperimentManager : MonoBehaviour
 	public float shuffledRadiusArrayHuge;
 	public List<float> xPos = new List<float>();
 	public List<float> zPos = new List<float>();
-	float R;
-	float Rmax;
-	float Rmin;
 	// =============================================================================================================================
     public GameObject[] squares;							// This is the list of game objects that the CubeClrUpdate() method will iterate through
 	public Material Clr0;									// Initial color of the screen
@@ -97,10 +94,6 @@ public class ExperimentManager : MonoBehaviour
 	public float DominantColor;
 	public float raisedColor;
 	
-	// public GameObject beepObject;
-	// public AudioSource audioSource;
-	// public AudioClip beeep;
-	
 	public int numberOfAgents;								// number of agents responding in each trial
 	public List<int> respondingAgents = new List<int>();	// indices of responding agents
 	public List<int> RightLefts = new List<int>();
@@ -127,7 +120,6 @@ public class ExperimentManager : MonoBehaviour
 	// Introducing Animators ===============================================================================================================
 	public Animator fAnimator1, fAnimator2, fAnimator3, fAnimator4, fAnimator5;
 	public Animator mAnimator1, mAnimator2, mAnimator3, mAnimator4;
-	public Animator pAnimator;
 	public IEnumerator raiseHandCoroutine;
 	public IEnumerator raiseBalloonCoroutine;
 	public int numberOfPracticeTrials;
@@ -171,6 +163,8 @@ public class ExperimentManager : MonoBehaviour
 	private int avatarCounter = 0;	
 	public Material[] clothingMaterialTemplates;
 	public int Rem;
+	public int numARC;		// number of arcs
+	public int numAngle;	// number of angles
 
 	
 	#endregion
@@ -198,50 +192,37 @@ public class ExperimentManager : MonoBehaviour
 		NumberOfBlocks=2;									// number of blocks of the experiment (one practice and one test)
 		fixationDuration=1f;
 		numberOfRounds=2;
+		numARC=10;
+		numAngle=6;
 		// Starting the stimulus ===========================================================================================================
         GenerationCube();
 		gridSize=columnLength * rowLength;
 		
 		numberOfPracticeTrials=2;		//10
 		numberOfTestTrials=2;			//75
-		// =================================================================================================================================
-		// Starting to control the experiment ==============================================================================================
-		// Initiating  animators -----------------------------------------------------------------------------------------------------------
-		// Female animators ----------------------------------------------------------------------------------------------------------------
-		fAnimator1 = Agents[0].GetComponent<Animator>();
-		fAnimator2 = Agents[1].GetComponent<Animator>();
-		fAnimator3 = Agents[2].GetComponent<Animator>();
-		fAnimator4 = Agents[3].GetComponent<Animator>();
-		fAnimator5 = Agents[4].GetComponent<Animator>();
-        // Male animators ------------------------------------------------------------------------------------------------------------------
-		mAnimator1 = Agents[8].GetComponent<Animator>();
-		mAnimator2 = Agents[9].GetComponent<Animator>();
-		mAnimator3 = Agents[10].GetComponent<Animator>();
-		mAnimator4 = Agents[11].GetComponent<Animator>();
-		pAnimator = Participant.GetComponent<Animator>();
 	}
 
 	private IEnumerator GeneratePositions()						   			    // in this coroutine, we generate an array of positions that each avatar will be located (myPos)
     {
-		myPos = new Vector3[6 * 10];
+		myPos = new Vector3[numARC * numAngle];
 
 		int ct=0;
-		for (int i1 = 1; i1 <= 10; i1++) 
+		for (int i1 = 1; i1 <= numARC; i1++) 
 		{
-			for (int j1 = 1; j1 <= 3; j1++) 
+			for (int j1 = 1; j1 <= numAngle/2; j1++) 
 			{
-				xPos.Add((i1*0.7f+4.5f+Random.Range(-1.5f,1.5f))*Mathf.Sin(((2*j1-1)*(10f+Random.Range(-2f,2f)))*(Mathf.PI)/180f));
-				zPos.Add(-(i1*0.7f+4.5f+Random.Range(-1.5f,1.5f))*Mathf.Cos(((2*j1-1)*(10f+Random.Range(-2f,2f)))*(Mathf.PI)/180f));
+				xPos.Add((i1*0.7f+5f+Random.Range(-0.5f,0.5f))*Mathf.Sin(((2*j1-1)*(6f+Random.Range(-0.5f,0.5f)))*(Mathf.PI)/180f));
+				zPos.Add(-((i1*0.7f+5f+Random.Range(-0.5f,0.5f))*Mathf.Cos(((2*j1-1)*(6f+Random.Range(-0.5f,0.5f)))*(Mathf.PI)/180f)-2));
 				ct++;
-				xPos.Add(-(i1*0.7f+4.5f+Random.Range(-1.5f,1.5f))*Mathf.Sin(((2*j1-1)*(10f+Random.Range(-2f,2f)))*(Mathf.PI)/180f));
-				zPos.Add(-(i1*0.7f+4.5f+Random.Range(-1.5f,1.5f))*Mathf.Cos(((2*j1-1)*(10f+Random.Range(-2f,2f)))*(Mathf.PI)/180f));
+				xPos.Add(-(i1*0.7f+5f+Random.Range(-0.5f,0.5f))*Mathf.Sin(((2*j1-1)*(6f+Random.Range(-0.5f,0.5f)))*(Mathf.PI)/180f));
+				zPos.Add(-((i1*0.7f+5f+Random.Range(-0.5f,0.5f))*Mathf.Cos(((2*j1-1)*(6f+Random.Range(-0.5f,0.5f)))*(Mathf.PI)/180f)-2));
 				ct++;
 			}
 		}
 		Shuffle(xPos);
 		Shuffle(zPos);
         
-		for (int counter = 0; counter < 60; counter++)
+		for (int counter = 0; counter < numARC * numAngle; counter++)
         {
 			myPos[counter] = new Vector3(xPos[counter], -0.24f, zPos[counter]);
             yield return null; // Yield each iteration
@@ -262,13 +243,13 @@ public class ExperimentManager : MonoBehaviour
 	
     private IEnumerator InstantiateAvatars()
     {
-		posList = new int[6 * 10];
-		randomList = new int[6 * 10];
-		Animators = new Animator[6 * 10];
-		myAvatars = new GameObject[6 * 10];
+		posList = new int[numARC * numAngle];
+		randomList = new int[numARC * numAngle];
+		Animators = new Animator[numARC * numAngle];
+		myAvatars = new GameObject[numARC * numAngle];
 		
 		int posCounter = 0;
-        for (int i3 = 0; i3 < 60; i3++)			// in this loop, I make a list of numbers between 0 and expected total number of avatars
+        for (int i3 = 0; i3 < numARC * numAngle; i3++)			// in this loop, I make a list of numbers between 0 and expected total number of avatars
         {
             posList[i3] = i3;
 			randomList[i3] = i3;
@@ -291,11 +272,13 @@ public class ExperimentManager : MonoBehaviour
 		// Step 3: Deactivate original avatars
         DeactivateOriginalAvatars();
 		// Int his loop, we assign a name for each animator, and initiate the animators. "LR" is the parameter that when is not zero starts the animation in the idle mode!
-		for (int j = 0; j< 60;j++)
+		for (int j = 0; j< numARC * numAngle;j++)
 		{
 			Animators[j].gameObject.name="Animator"+(j+1);
 		}
-		// yield return StartCoroutine(ControlAvatars(myAvatars));		                               // "StartCoroutine" is a coroutine that controls the timing of the actions of avatars
+		// yield return StartCoroutine(ControlAvatars(myAvatars));	
+		// "StartCoroutine" is a coroutine that controls the timing of the actions of avatars
+		BKG.SetActive(false);
 		C1=ExperimentStructure();
 		StartCoroutine(C1);
 		yield return null;	
@@ -428,7 +411,6 @@ public class ExperimentManager : MonoBehaviour
 			}
 			responses[trialCounter,0]=SessionInd; 	// if index==1, it is practice session, else, it is test session
 			responses[trialCounter,1]=catchInd; 	// it is 1 if it is a catch. Otherwise, it is zero
-			responses[trialCounter,2]=R; 			// radius of the circle that agents are standing in it (lower R, higher density)
 			responses[trialCounter,3]=numberOfAgents; 			// number of responding agents
 			responses[trialCounter,4]=LR; 			// right hand:2; left hand:1
 			responses[trialCounter,6]=Time.time-referenceTime1; 			// response time
@@ -437,7 +419,7 @@ public class ExperimentManager : MonoBehaviour
 
 			
 			CanvasObject.GetComponent<Canvas>().enabled = true;
-			CanvasBKG.GetComponent<SpriteRenderer>().enabled = true;
+			BKG.SetActive(true);
 			
 			if((responses[trialCounter, 5]!=0 & raisedColor==0 & DominantColor==1) | (responses[trialCounter, 5]!=0 & raisedColor==1 & DominantColor==2))
 			{
@@ -462,7 +444,7 @@ public class ExperimentManager : MonoBehaviour
 			yield return new WaitForSeconds(fixationDuration);
 			yield return new WaitForSeconds(trialDuration-(Time.time-referenceTime1));
 			StopCoroutine(raiseHandCoroutine);
-			CanvasBKG.GetComponent<SpriteRenderer>().enabled = false;
+			BKG.SetActive(false);
 			CorrectScreen.SetActive(false);
 			WrongScreen.SetActive(false);
 			MissedScreen.SetActive(false);
@@ -470,7 +452,7 @@ public class ExperimentManager : MonoBehaviour
 		}
 		
 		CanvasObject.GetComponent<Canvas>().enabled = true;
-		CanvasBKG.GetComponent<SpriteRenderer>().enabled = true;
+		BKG.SetActive(true);
 		if (percentCorrect>=0.75){
 			Feedback10ScreenGood.SetActive(true);
 			yield return new WaitForSeconds(5f);
@@ -481,7 +463,7 @@ public class ExperimentManager : MonoBehaviour
 			yield return new WaitForSeconds(5f);
 			Feedback10ScreenBad.SetActive(false);
 		}
-		CanvasBKG.GetComponent<SpriteRenderer>().enabled = false;
+		BKG.SetActive(false);
 		Feedback10ScreenGood.SetActive(false);
 		Feedback10ScreenBad.SetActive(false);
 		CanvasObject.GetComponent<Canvas>().enabled = false;			
@@ -521,7 +503,6 @@ public class ExperimentManager : MonoBehaviour
 			
 			responses[trialCounter,0]=SessionInd; 	// if index==1, it is practice session, else, it is test session
 			responses[trialCounter,1]=catchInd; 	// it is 1 if it is a catch. Otherwise, it is zero
-			responses[trialCounter,2]=R; 			// radius of the circle that agents are standing in it (lower R, higher density)
 			responses[trialCounter,3]=numberOfAgents; 			// number of responding agents
 			responses[trialCounter,4]=LR; 			// right hand:2; left hand:1
 			responses[trialCounter,6]=Time.time-referenceTime1; 			// response time
@@ -530,7 +511,7 @@ public class ExperimentManager : MonoBehaviour
 			
 			raisedColor=Mathf.Abs(responses[trialCounter,5]-InstructionPick);		// if 0: yellow raised; if 1: blue raised
 			CanvasObject.GetComponent<Canvas>().enabled = true;
-			CanvasBKG.GetComponent<SpriteRenderer>().enabled = true;
+			BKG.SetActive(true);
 
 			if((responses[trialCounter, 5]!=0 & raisedColor==0 & DominantColor==1) | (responses[trialCounter, 5]!=0 & raisedColor==1 & DominantColor==2))
 			{
@@ -554,7 +535,7 @@ public class ExperimentManager : MonoBehaviour
 			yield return new WaitForSeconds(fixationDuration);
 			yield return new WaitForSeconds(trialDuration-(Time.time-referenceTime1));
 			StopCoroutine(raiseHandCoroutine);
-			CanvasBKG.GetComponent<SpriteRenderer>().enabled = false;
+			BKG.SetActive(false);
 			CorrectScreen.SetActive(false);
 			WrongScreen.SetActive(false);
 			MissedScreen.SetActive(false);
@@ -562,7 +543,7 @@ public class ExperimentManager : MonoBehaviour
 		}	
 		// ========================================================
 		CanvasObject.GetComponent<Canvas>().enabled = true;
-		CanvasBKG.GetComponent<SpriteRenderer>().enabled = true;
+		BKG.SetActive(true);
 		if (percentCorrect>=0.75){
 			Feedback20ScreenGood.SetActive(true);
 			yield return new WaitForSeconds(5f);
@@ -573,22 +554,10 @@ public class ExperimentManager : MonoBehaviour
 			yield return new WaitForSeconds(5f);
 			Feedback20ScreenBad.SetActive(false);
 		}
-		CanvasBKG.GetComponent<SpriteRenderer>().enabled = false;
+		BKG.SetActive(false);
 		Feedback20ScreenGood.SetActive(false);
 		Feedback20ScreenBad.SetActive(false);
 		CanvasObject.GetComponent<Canvas>().enabled = false;	
-		// .....................................................
-		densitySelect=Random.Range(1,3);	// 1: high-density; 2: low-density
-		if (densitySelect==1)
-		{
-			Rt1=Rmin;
-			Rt2=Rmax;
-		}
-		else
-		{
-			Rt1=Rmax;
-			Rt2=Rmin;
-		}
 		// Modifying the density of the group ==================================================================================================
 		for(int rund = 0; rund < numberOfRounds; rund++)
 		{
@@ -629,7 +598,6 @@ public class ExperimentManager : MonoBehaviour
 				}
 				responses[trialCounter,0]=SessionInd; 	// if index==1, it is practice session, else, it is test session
 				responses[trialCounter,1]=catchInd; 	// it is 1 if it is a catch. Otherwise, it is zero
-				responses[trialCounter,2]=R; 			// radius of the circle that agents are standing in it (lower R, higher density)
 				responses[trialCounter,3]=numberOfAgents; 			// number of responding agents
 				responses[trialCounter,4]=LR; 			// right hand:2; left hand:1
 				responses[trialCounter,6]=Time.time-referenceTime1; 			// response time
@@ -643,10 +611,10 @@ public class ExperimentManager : MonoBehaviour
 			}
 
 			CanvasObject.GetComponent<Canvas>().enabled = true;
-			CanvasBKG.GetComponent<SpriteRenderer>().enabled = true;
+			BKG.SetActive(true);
 			Instruction2.SetActive(true);
 			yield return new WaitForSeconds(2f);
-			CanvasBKG.GetComponent<SpriteRenderer>().enabled = false;
+			BKG.SetActive(false);
 			Instruction2.SetActive(false);
 			CanvasObject.GetComponent<Canvas>().enabled = false;
 			// ............................................
@@ -687,7 +655,6 @@ public class ExperimentManager : MonoBehaviour
 				}
 				responses[trialCounter,0]=SessionInd; 	// if index==1, it is practice session, else, it is test session
 				responses[trialCounter,1]=catchInd; 	// it is 1 if it is a catch. Otherwise, it is zero
-				responses[trialCounter,2]=R; 			// radius of the circle that agents are standing in it (lower R, higher density)
 				responses[trialCounter,3]=numberOfAgents; 			// number of responding agents
 				responses[trialCounter,4]=LR; 			// right hand:2; left hand:1
 				responses[trialCounter,6]=Time.time-referenceTime1; 			// response time
@@ -703,16 +670,16 @@ public class ExperimentManager : MonoBehaviour
 			if (rund==0)
 			{
 				CanvasObject.GetComponent<Canvas>().enabled = true;
-				CanvasBKG.GetComponent<SpriteRenderer>().enabled = true;
+				BKG.SetActive(true);
 				Instruction2.SetActive(true);
 				yield return new WaitForSeconds(5f);
-				CanvasBKG.GetComponent<SpriteRenderer>().enabled = false;
+				BKG.SetActive(false);
 				Instruction2.SetActive(false);
 				CanvasObject.GetComponent<Canvas>().enabled = false;
 			}
 		}
 		CanvasObject.GetComponent<Canvas>().enabled = true;
-		CanvasBKG.GetComponent<SpriteRenderer>().enabled = true;
+		BKG.SetActive(true);
 		Thank.SetActive(true);
 		// JatosInterface.StartNextJatosEvent();
 	} 
@@ -756,7 +723,7 @@ public class ExperimentManager : MonoBehaviour
 			LR=Random.Range(1,3);
 		}		
 		refTime=Time.time;
-		OriginalArray=new List<int>{1,2,3,4,5,6,7,8,9};
+		OriginalArray=new List<int>{0,1,2,3,4,5,6,7,8};
 		shuffledArray=new List<int>{};		// a shuffled array of all the numbers between 1 and 15
 		for (int n=9; n>0;n--)
 		{
@@ -764,8 +731,7 @@ public class ExperimentManager : MonoBehaviour
 			shuffledArray.Add(OriginalArray[randomIndex]);
 			OriginalArray.RemoveAt(randomIndex);
 		}
-		// numberOfAgents=Random.Range(1,3)*3-2;		// 1, 4, or 7 agents respond.
-		numberOfAgents=3;		// 1, 4, or 7 agents respond.
+		numberOfAgents=Random.Range(1,3)*3-2;		// 1, 4, or 7 agents respond.
 		respondingAgents=new List<int>{};
 		for (int n = 0; n < numberOfAgents; n++)
 		{
@@ -801,7 +767,7 @@ public class ExperimentManager : MonoBehaviour
 			for (int b = 0; b < numberOfAgents; b++)
 			{
 				print("Asi:   "+b);
-				for(int a=0; a<60; a++)
+				for(int a=0; a<numARC * numAngle; a++)
 				{
 					if ((a % 9==respondingAgents[b]) && (respondingAgents[b]<=5))
 					{
@@ -818,7 +784,7 @@ public class ExperimentManager : MonoBehaviour
 			yield return new WaitForSeconds(agentsRHTime);
 			for (int b = 0; b < numberOfAgents; b++)
 			{
-				for(int a=0; a<60; a++)
+				for(int a=0; a<numARC * numAngle; a++)
 				{
 					if ((a % 9==respondingAgents[b]) && (respondingAgents[b]<=5))
 					{
@@ -835,7 +801,7 @@ public class ExperimentManager : MonoBehaviour
 			yield return new WaitForSeconds(agentsHUDuration);
 			for (int b = 0; b < numberOfAgents; b++)
 			{
-				for(int a=0; a<60; a++)
+				for(int a=0; a<numARC * numAngle; a++)
 				{
 					if ((a % 9==respondingAgents[b]) && (respondingAgents[b]<=5))
 					{
@@ -854,7 +820,7 @@ public class ExperimentManager : MonoBehaviour
 			yield return new WaitForSeconds(0.5f);
 			for (int b = 0; b < numberOfAgents; b++)
 			{
-				for(int a=0; a<60; a++)
+				for(int a=0; a<numARC * numAngle; a++)
 				{
 					if ((a % 9==respondingAgents[b]) && (respondingAgents[b]<=5))
 					{
@@ -875,7 +841,7 @@ public class ExperimentManager : MonoBehaviour
 			yield return new WaitForSeconds(1f);
 			for (int b = 0; b < numberOfAgents; b++)
 			{
-				for(int a=0; a<60; a++)
+				for(int a=0; a<numARC * numAngle; a++)
 				{
 					if ((a % 9==respondingAgents[b]) && (respondingAgents[b]<=5))
 					{
@@ -889,49 +855,6 @@ public class ExperimentManager : MonoBehaviour
 					}
 				}
 			}
-			// for(int a=0; a<60; a++)
-			// {
-				// if (a % 9==8)
-				// {
-					// Animators[a].SetInteger("M", RightLeftM1);
-				// }
-			// }
-			// yield return new WaitForSeconds(agentsRHTime);
-			// for(int a=0; a<60; a++)
-			// {
-				// if (a % 9==8)
-				// {
-					// Animators[a].SetInteger("MLR", RightLeftM1);
-				// }
-			// }
-			// yield return new WaitForSeconds(agentsHUDuration);
-			// for(int a=0; a<60; a++)
-			// {
-				// if (a % 9==8)
-				// {
-					// Animators[a].SetInteger("MI", RightLeftM1);
-					// Animators[a].SetInteger("RestartM", RightLeftM1);
-				// }
-			// }
-			// yield return new WaitForSeconds(0.5f);
-			// for(int a=0; a<60; a++)
-			// {
-				// if (a % 9==8)
-				// {
-					// Animators[a].SetInteger("M", 0);
-					// Animators[a].SetInteger("MLR", 0);
-					// Animators[a].SetInteger("MI", 0);
-				// }
-			// }
-			// yield return new WaitForSeconds(1f);
-			// for(int a=0; a<60; a++)
-			// {
-				// if (a % 9==8)
-				// {
-					// Animators[a].SetInteger("RestartM", 0);
-				// }
-			// }
-		// }
     }
 	#endregion
 	// ExperimentControl coroutines ============================================================================================================
@@ -1005,7 +928,6 @@ public class ExperimentManager : MonoBehaviour
 			// 
 			myButton.SetActive(false);	// This removes the button from the UI entirely:
 			CanvasObject.GetComponent<Canvas>().enabled = false;
-			CanvasBKG.GetComponent<SpriteRenderer>().enabled = false;
 			Input.ResetInputAxes();
 			StartCoroutine(GeneratePositions());
 		}
