@@ -48,8 +48,8 @@ public class Main : MonoBehaviour
 	private int[] posList;					                										 // list of positions of all avatars (elements of this list come from myPos)
 	private int[] randomList;
 	private int[] RightLeft;		                                   							       			   // a counter for the avatars that we make in the code
-	public int numTrialsTrain = 2;
-	public int numTrialsTest = 2;
+	public int numTrialsTrain;
+	public int numTrialsTest;
 	public float referenceTime1;
 	public float trialDuration=4f;
 	public int conditionSelect;
@@ -149,8 +149,8 @@ public class Main : MonoBehaviour
 		responses = new float[400,10];			// Array of size 400*10 for saving responses of avatars
 		trialNumber = 0;
 		// this is a "between subject" experiment. Some participants see agents, some see cylinders. "participantSelect" determines if the participant is supposed to see the agents or cylinders
-		// int participantSelect=Random.Range(1,3);			// if 1: hide the agents, show the cylinder; if 2: hide the cylinders, show the agents
-		int participantSelect=1;
+		int participantSelect=Random.Range(1,3);			// if 1: hide the agents, show the cylinder; if 2: hide the cylinders, show the agents
+		// int participantSelect=1;
 		int count=0;	
 		for (int i1 = 0; i1 < stimSize; i1++)
 		{
@@ -215,6 +215,7 @@ public class Main : MonoBehaviour
 		conditionSelect=Random.Range(1,3);	// we have one condition in practice and cath trials 60 to 40, but the dominant color can be yellow or blue, so, we consider two conditions: 60 to 40 or 40 to 60
 		for (int trialTrain=0; trialTrain< numberTrialsTrain; trialTrain++)		
 		{
+			yield return new WaitForSeconds(1f);
 			RightLeft = new int[stimSize * stimSize];														// "RightLeft" determines each agent should raise right or left hand
 			float randRightLeft=0;
 			count=0;
@@ -321,7 +322,7 @@ public class Main : MonoBehaviour
 					responses[trialNumber, 1] = 0;
 				}
 				print("time: "+timePassed+"  res: "+responses[trialNumber, 1]);
-				yield return new WaitForSeconds(1f);
+				// yield return new WaitForSeconds(1f);
 				// Hide the agents and rotate them
 				avatarCount = 0;
 				foreach (GameObject avatar in MyAvatar)
@@ -355,7 +356,7 @@ public class Main : MonoBehaviour
 
 					avatarCount++;
 				}
-				yield return new WaitForSeconds(4f);
+				yield return new WaitForSeconds(2f);
 			}
 			else
 			{
@@ -413,7 +414,7 @@ public class Main : MonoBehaviour
 					Animators[j].SetInteger("I", 0);
 					Animators[j].SetInteger("O", RightLeft[j]);
 				}
-				yield return new WaitForSeconds(3f);
+				yield return new WaitForSeconds(1f);
 				print("Back");
 				for (int j = 0; j< (stimSize*stimSize);j++)								   // here, avatars lower their hands and go back to their original posture, waiting for the next trial to start
 				{
@@ -423,9 +424,9 @@ public class Main : MonoBehaviour
 			}
 			
 			
-			responses[trialNumber,0]=conditionSelect;
-			responses[trialNumber,2]=timePassed;
-			responses[trialNumber,3]=pamponColorSelcet;
+			responses[trialNumber,0]=conditionSelect;		// 1: 40% raise left hand; 2: 40% raise right hand 
+			responses[trialNumber,2]=timePassed;			// response time
+			responses[trialNumber,3]=pamponColorSelcet;		// 1: left hand yellow, right hand blue; 2: left hand blue, right hand yellow
 			print("responses: " + trialTrain + " , " + responses[trialNumber,0] + " , " + responses[trialNumber,1] + " , " + responses[trialNumber,2] + " , " + responses[trialNumber,3]);
 			dataStringCoroutine = DataStringMaker(responses, trialNumber, MyList);
 			StartCoroutine(dataStringCoroutine);
@@ -440,11 +441,10 @@ public class Main : MonoBehaviour
 //                                                                                 Test session 
 // *****************************************************************************************************************************************************************************
 // *****************************************************************************************************************************************************************************		
-		for (int trialTest=0; trialTest< numberTrialsTest; trialTest++)		
+		for (int trialTest=0; trialTest< numberTrialsTrain; trialTest++)		
 		{
-			print("Test: "+ trialTest);
-			RightLeft = new int[stimSize * stimSize];
-			
+			yield return new WaitForSeconds(1f);
+			RightLeft = new int[stimSize * stimSize];														// "RightLeft" determines each agent should raise right or left hand
 			float randRightLeft=0;
 			count=0;
 			if (conditionSelect==1)
@@ -453,7 +453,6 @@ public class Main : MonoBehaviour
 				{
 					for (int i2 = 0; i2 < stimSize; i2++)
 					{
-						// RightLeft[count]=0;
 						randRightLeft=Random.Range(1f,100f);
 						if (randRightLeft < 40)		// left hand
 						{
@@ -490,7 +489,7 @@ public class Main : MonoBehaviour
 			}
 			
 			yield return new WaitForSeconds(1f);	                                                                         // the time before avatars raise their hand
-			refTime = Time.time;
+			// refTime = Time.time;
 			if (participantSelect == 1)
 			{
 				// Dictionary to store original rotations
@@ -529,8 +528,6 @@ public class Main : MonoBehaviour
 
 					avatarCount++;
 				}
-
-
 				refTime = Time.time;
 				timePassed=Time.time-refTime;
 				while(!(Input.GetKey(KeyCode.RightArrow)||Input.GetKey(KeyCode.LeftArrow))&& (timePassed)<=trialDuration)
@@ -552,8 +549,8 @@ public class Main : MonoBehaviour
 				{
 					responses[trialNumber, 1] = 0;
 				}
-
-				yield return new WaitForSeconds(1f);
+				print("time: "+timePassed+"  res: "+responses[trialNumber, 1]);
+				// yield return new WaitForSeconds(1f);
 				// Hide the agents and rotate them
 				avatarCount = 0;
 				foreach (GameObject avatar in MyAvatar)
@@ -584,8 +581,10 @@ public class Main : MonoBehaviour
 							}
 						}
 					}
+
 					avatarCount++;
 				}
+				yield return new WaitForSeconds(2f);
 			}
 			else
 			{
@@ -598,8 +597,7 @@ public class Main : MonoBehaviour
 					ApplyColorPampons(MyAvatar[j],pamponColorSelcet);
 				}
 				fixationSign.SetActive(false);
-				 print("Raise");
-				
+
 				
 				refTime = Time.time;
 				timePassed=Time.time-refTime;	
@@ -644,7 +642,7 @@ public class Main : MonoBehaviour
 					Animators[j].SetInteger("I", 0);
 					Animators[j].SetInteger("O", RightLeft[j]);
 				}
-				yield return new WaitForSeconds(3f);
+				yield return new WaitForSeconds(1f);
 				print("Back");
 				for (int j = 0; j< (stimSize*stimSize);j++)								   // here, avatars lower their hands and go back to their original posture, waiting for the next trial to start
 				{
@@ -654,9 +652,9 @@ public class Main : MonoBehaviour
 			}
 			
 			
-			responses[trialNumber,0]=conditionSelect;
-			responses[trialNumber,2]=timePassed;
-			responses[trialNumber,3]=pamponColorSelcet;
+			responses[trialNumber,0]=conditionSelect;		// 1: 40% raise left hand; 2: 40% raise right hand 
+			responses[trialNumber,2]=timePassed;			// response time
+			responses[trialNumber,3]=pamponColorSelcet;		// 1: left hand yellow, right hand blue; 2: left hand blue, right hand yellow
 			print("responses: " + trialTest + " , " + responses[trialNumber,0] + " , " + responses[trialNumber,1] + " , " + responses[trialNumber,2] + " , " + responses[trialNumber,3]);
 			dataStringCoroutine = DataStringMaker(responses, trialNumber, MyList);
 			StartCoroutine(dataStringCoroutine);
@@ -710,7 +708,7 @@ public class Main : MonoBehaviour
     {
 		foreach (Renderer renderer in newAvatar1.GetComponentsInChildren<Renderer>())
 		{
-			if (ColorSelcet == 1)
+			if (ColorSelcet == 1)		// left hand: yellow; right hand: blue
 			{
 				if (renderer.gameObject.name.Contains("g_RetopoGroup1_RetopoGroup1") ||
 					renderer.gameObject.name.Contains("g_RetopoGroup2_RetopoGroup2") ||
@@ -733,7 +731,7 @@ public class Main : MonoBehaviour
 					}
 				}
 			}
-			else if (ColorSelcet == 2)
+			else if (ColorSelcet == 2)		// left hand: blue; right hand: yellow
 			{
 				if (renderer.gameObject.name.Contains("g_RetopoGroup1_RetopoGroup1") ||
 					renderer.gameObject.name.Contains("g_RetopoGroup2_RetopoGroup2") ||
@@ -835,7 +833,6 @@ public class Main : MonoBehaviour
 		// :::::::::::::::::::::::::::::::::                                                      ::::::::::::::::::::::::::::::::::::::
 		// :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 		IEnumerator DataStringMaker(float[,] responses, int trialNum, List<string> myList){
-			print("Asi  "+trialNum+"  ,  "+numTrialsTrain+"  ,  "+numTrialsTest);
 			tempStr=(((responses[trialNum, 0]).ToString())+", "+((responses[trialNum, 1]).ToString())+", "+((responses[trialNum, 2]).ToString())+", "+((responses[trialNum, 3]).ToString()));
 			myList.Add(tempStr);
 			
