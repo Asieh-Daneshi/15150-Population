@@ -96,8 +96,6 @@ public class Main : MonoBehaviour
 			randomList[i3] = i3;
             yield return null; // Yield each iteration
         }
-
-        // int totalAvatars = avatarPrefabs.Length * numberOfDuplicates;
         int posCounter = 0;
 		// in this nested loop, first, we shuffle the elements of "posList", so that copies of each avatar be located randomly, not in a queue behid that avatar. Then, we copy 
 		// original avatars as new avatars, call their animators, and change the color of their clothes randomly!
@@ -126,20 +124,15 @@ public class Main : MonoBehaviour
                 GameObject newAvatar = Instantiate(avatarPrefabs[k1], position, Quaternion.identity, transform);
 				newAvatar.transform.rotation = Quaternion.Euler(0, 180, 0);
                 Animator newAnimator = newAvatar.GetComponent<Animator>();
-                // print(row * (stimSize) +(k2)*(avatarPrefabs.Length) +k1);
 				Animators[row * (stimSize) +(k2)*(avatarPrefabs.Length)+k1]=newAnimator;
 				myAvatars[row * (stimSize) +(k2)*(avatarPrefabs.Length)+k1]=newAvatar;
-				// print(row * (stimSize) +(k2)*(avatarPrefabs.Length)+k1);
                 ApplyRandomColorVariation(row * (stimSize) +(k2)*(avatarPrefabs.Length)+k1,newAvatar);
 				Animators[row * (stimSize) +(k2)*(avatarPrefabs.Length)+k1].SetInteger("LR", 0);																	         // avatars raise their hand and keep it up until further notice
-				
-                // newAvatar.tag = $"agent{avatarCounter + 1}";
-				// ChangeGlovesColor(newAvatar.transform);
                 avatarCounter++;
                 yield return null; // Yield each iteration
             }
         }
-		// Step 3: Deactivate original avatars
+		// Deactivate original avatars
         DeactivateOriginalAvatars();
 		// Int his loop, we assign a name for each animator, and initiate the animators. "LR" is the parameter that when is not zero starts the animation in the idle mode!
 		for (int j = 0; j< (stimSize*stimSize);j++)
@@ -154,18 +147,15 @@ public class Main : MonoBehaviour
 	private IEnumerator ControlAvatars(GameObject[] MyAvatar)
     {
 		pamponColorSelcet=Random.Range(1,3);	// if 1: right hand blue, left hand yellow; if 2: right hand yellow, left hand blue
-		// RightLeft = new int[stimSize * stimSize];
-		
 		responses = new float[400,10];
 		trialNumber = 0;
-		// int participantSelect=Random.Range(1,3);
+		// int participantSelect=Random.Range(1,3);			// if 1: hide the agents, show the cylinder; if 2: hide the cylinders, show the agents
 		int participantSelect=2;
 		// Practice session ===========================================================================================
 		conditionSelect=Random.Range(1,3);	// we have one condition in practice and cath trials 60 to 40, but the dominant color can be yellow or blue, so, we consider two conditions: 60 to 40 or 40 to 60
 		int count=0;
-		if (conditionSelect==1)
-		{		
-			print("Asiiiiiii");
+		// if (conditionSelect==1)
+		// {		
 			for (int i1 = 0; i1 < stimSize; i1++)
 			{
 				for (int i2 = 0; i2 < stimSize; i2++)
@@ -221,65 +211,64 @@ public class Main : MonoBehaviour
 					count++;
 				}
 			}
-		}
-		else
-		{		
-			print("Asiiiiiii");
-			for (int i1 = 0; i1 < stimSize; i1++)
-			{
-				for (int i2 = 0; i2 < stimSize; i2++)
-				{
-					// if (participantSelect==1)
+		// }
+		// else
+		// {		
+			// for (int i1 = 0; i1 < stimSize; i1++)
+			// {
+				// for (int i2 = 0; i2 < stimSize; i2++)
+				// {
+					// // if (participantSelect==1)
+					// // {
+						// // SkinnedMeshRenderer[] skinnedMeshRenderers = MyAvatar[count].GetComponentsInChildren<SkinnedMeshRenderer>();
+						// // foreach (SkinnedMeshRenderer smr in skinnedMeshRenderers)
+						// // {
+							// // smr.enabled = false; // Disable visibility
+						// // }
+					// // }
+					// if (participantSelect == 1)
 					// {
+					    // // Hide the agents
 						// SkinnedMeshRenderer[] skinnedMeshRenderers = MyAvatar[count].GetComponentsInChildren<SkinnedMeshRenderer>();
 						// foreach (SkinnedMeshRenderer smr in skinnedMeshRenderers)
 						// {
-							// smr.enabled = false; // Disable visibility
+							// smr.enabled = false; // Disable agent visibility
+						// }
+
+						// // Show the cylinders
+						// MeshRenderer[] meshRenderers = MyAvatar[count].GetComponentsInChildren<MeshRenderer>();
+						// foreach (MeshRenderer mr in meshRenderers)
+						// {
+							// mr.enabled = true; // Enable cylinder visibility
 						// }
 					// }
-					if (participantSelect == 1)
-					{
-					    // Hide the agents
-						SkinnedMeshRenderer[] skinnedMeshRenderers = MyAvatar[count].GetComponentsInChildren<SkinnedMeshRenderer>();
-						foreach (SkinnedMeshRenderer smr in skinnedMeshRenderers)
-						{
-							smr.enabled = false; // Disable agent visibility
-						}
+					// else
+					// {
+						// // Show the agents
+						// SkinnedMeshRenderer[] skinnedMeshRenderers = MyAvatar[count].GetComponentsInChildren<SkinnedMeshRenderer>();
+						// foreach (SkinnedMeshRenderer smr in skinnedMeshRenderers)
+						// {
+							// smr.enabled = true; // Enable agent visibility
+						// }
 
-						// Show the cylinders
-						MeshRenderer[] meshRenderers = MyAvatar[count].GetComponentsInChildren<MeshRenderer>();
-						foreach (MeshRenderer mr in meshRenderers)
-						{
-							mr.enabled = true; // Enable cylinder visibility
-						}
-					}
-					else
-					{
-						// Show the agents
-						SkinnedMeshRenderer[] skinnedMeshRenderers = MyAvatar[count].GetComponentsInChildren<SkinnedMeshRenderer>();
-						foreach (SkinnedMeshRenderer smr in skinnedMeshRenderers)
-						{
-							smr.enabled = true; // Enable agent visibility
-						}
-
-						// Hide the cylinders
-						foreach (GameObject avatar in MyAvatar)
-						{
-							Transform[] allChildren = avatar.GetComponentsInChildren<Transform>(true); // Get all nested children
-							foreach (Transform child in allChildren)
-							{
-								if (child.CompareTag("cylinder")) // Check for cylinders deep in hierarchy
-								{
-									child.gameObject.SetActive(false);  // Hide the cylinder
-									Debug.Log("Hiding cylinder: " + child.name);
-								}
-							}
-						}
-					}
-					count++;
-				}
-			}
-		}
+						// // Hide the cylinders
+						// foreach (GameObject avatar in MyAvatar)
+						// {
+							// Transform[] allChildren = avatar.GetComponentsInChildren<Transform>(true); // Get all nested children
+							// foreach (Transform child in allChildren)
+							// {
+								// if (child.CompareTag("cylinder")) // Check for cylinders deep in hierarchy
+								// {
+									// child.gameObject.SetActive(false);  // Hide the cylinder
+									// Debug.Log("Hiding cylinder: " + child.name);
+								// }
+							// }
+						// }
+					// }
+					// count++;
+				// }
+			// }
+		// }
 		for (int trial=0; trial< 10; trial++)		// Training session
 		{
 			print("trial: "+ trial);
@@ -289,56 +278,53 @@ public class Main : MonoBehaviour
 			count=0;
 			if (conditionSelect==1)
 			{		
-				print("Asiiiiiii");
 				for (int i1 = 0; i1 < stimSize; i1++)
 				{
 					for (int i2 = 0; i2 < stimSize; i2++)
 					{
-						// ApplyBlackPampons(MyAvatar[count]);
-						RightLeft[count]=0;
+						// RightLeft[count]=0;
 						randRightLeft=Random.Range(1f,100f);
 						if (randRightLeft < 40)		// left hand
+						{
 							RightLeft[count] = Random.Range(10,15);	// a number between 10 and 14
+						}
 						else		// right hand
 						{
 							RightLeft[count] = Random.Range(3,10); 	// a number between 3 and 9
-							Animators[count].SetInteger("LR", RightLeft[count]);
 						}
-						if (participantSelect==1)
-						{
-							SkinnedMeshRenderer[] skinnedMeshRenderers = MyAvatar[count].GetComponentsInChildren<SkinnedMeshRenderer>();
-							foreach (SkinnedMeshRenderer smr in skinnedMeshRenderers)
-							{
-								smr.enabled = false; // Disable visibility
-							}
-						}
+						// if (participantSelect==1)
+						// {
+							// SkinnedMeshRenderer[] skinnedMeshRenderers = MyAvatar[count].GetComponentsInChildren<SkinnedMeshRenderer>();
+							// foreach (SkinnedMeshRenderer smr in skinnedMeshRenderers)
+							// {
+								// smr.enabled = false; // Disable visibility
+							// }
+						// }
+						Animators[count].SetInteger("LR", RightLeft[count]);
 						count++;
 					}
 				}
 			}
 			else
 			{		
-				print("Asiiiiiii");
 				for (int i1 = 0; i1 < stimSize; i1++)
 				{
 					for (int i2 = 0; i2 < stimSize; i2++)
 					{
-						// ApplyBlackPampons(MyAvatar[count]);
-						RightLeft[count]=0;
 						randRightLeft=Random.Range(1f,100f);
 						if (randRightLeft < 40)		// right hand
+						{
 							RightLeft[count] = Random.Range(3,10);	// a number between 3 and 9
+						}
 						else		// left hand
 						{
 							RightLeft[count] = Random.Range(10,15); 	// a number between 10 and 14
-							Animators[count].SetInteger("LR", RightLeft[count]);
 						}
+						Animators[count].SetInteger("LR", RightLeft[count]);
 						count++;
 					}
 				}
 			}
-			
-			
 			
 			// yield return new WaitForSeconds(1f);	                                                                         // the time before avatars raise their hand
 			refTime = Time.time;
