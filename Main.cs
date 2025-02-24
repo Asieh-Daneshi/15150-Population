@@ -44,8 +44,8 @@ public class Main : MonoBehaviour
 	private int[] randomList;
 	private int[] RightLeft;
     private int avatarCounter = 0;			                                   							       			   // a counter for the avatars that we make in the code
-	public int numTrialsTrain = 10;
-	public int numTrialsTest = 10;
+	public int numTrialsTrain = 2;
+	public int numTrialsTest = 2;
 	public float referenceTime1;
 	public float trialDuration=5f;
 	public int conditionSelect;
@@ -141,10 +141,10 @@ public class Main : MonoBehaviour
 			// Animators[j].SetInteger("LR", RightLeft[j]);
 		}
 		
-		yield return StartCoroutine(ControlAvatars(myAvatars));		                               // "StartCoroutine" is a coroutine that controls the timing of the actions of avatars
+		yield return StartCoroutine(ControlAvatars(myAvatars, numTrialsTrain, numTrialsTest));		                               // "StartCoroutine" is a coroutine that controls the timing of the actions of avatars
     }
 
-	private IEnumerator ControlAvatars(GameObject[] MyAvatar)
+	private IEnumerator ControlAvatars(GameObject[] MyAvatar, int numberTrialsTrain, int numberTrialsTest)
     {
 		pamponColorSelcet=Random.Range(1,3);	// if 1: right hand blue, left hand yellow; if 2: right hand yellow, left hand blue
 		responses = new float[400,10];
@@ -268,9 +268,9 @@ public class Main : MonoBehaviour
 				// }
 			// }
 		// }
-		for (int trial=0; trial< 10; trial++)		// Training session
+		for (int trialTrain=0; trialTrain< numberTrialsTrain; trialTrain++)		// Training session
 		{
-			print("trial: "+ trial);
+			print("train: "+ trialTrain);
 			RightLeft = new int[stimSize * stimSize];
 			
 			float randRightLeft=0;
@@ -327,7 +327,6 @@ public class Main : MonoBehaviour
 			
 			// yield return new WaitForSeconds(1f);	                                                                         // the time before avatars raise their hand
 			refTime = Time.time;
-			print("Trial: "+trial);
 			if (participantSelect == 1)
 			{
 				// Dictionary to store original rotations
@@ -476,13 +475,233 @@ public class Main : MonoBehaviour
 			}
 			
 			
-			// responses[trialNumber,0]=conditionSelect;
-			// responses[trialNumber,2]=timePassed;
-			// responses[trialNumber,3]=pamponColorSelcet;
-			// print("responses: " + trial + " , " + responses[trialNumber,0] + " , " + responses[trialNumber,1] + " , " + responses[trialNumber,2] + " , " + responses[trialNumber,3]);
-			// dataStringCoroutine = DataStringMaker(responses, trialNumber, MyList);
-			// StartCoroutine(dataStringCoroutine);
-			// trialNumber=trialNumber+1;
+			responses[trialNumber,0]=conditionSelect;
+			responses[trialNumber,2]=timePassed;
+			responses[trialNumber,3]=pamponColorSelcet;
+			print("responses: " + trialTrain + " , " + responses[trialNumber,0] + " , " + responses[trialNumber,1] + " , " + responses[trialNumber,2] + " , " + responses[trialNumber,3]);
+			dataStringCoroutine = DataStringMaker(responses, trialNumber, MyList);
+			StartCoroutine(dataStringCoroutine);
+			trialNumber=trialNumber+1;
+		}
+		
+		fixationSign.SetActive(true);
+		yield return new WaitForSeconds(1f);
+		fixationSign.SetActive(false);
+		
+		for (int trialTest=0; trialTest< numberTrialsTest; trialTest++)		// Test session
+		{
+			print("Test: "+ trialTest);
+			RightLeft = new int[stimSize * stimSize];
+			
+			float randRightLeft=0;
+			count=0;
+			if (conditionSelect==1)
+			{		
+				for (int i1 = 0; i1 < stimSize; i1++)
+				{
+					for (int i2 = 0; i2 < stimSize; i2++)
+					{
+						// RightLeft[count]=0;
+						randRightLeft=Random.Range(1f,100f);
+						if (randRightLeft < 40)		// left hand
+						{
+							RightLeft[count] = Random.Range(10,15);	// a number between 10 and 14
+						}
+						else		// right hand
+						{
+							RightLeft[count] = Random.Range(3,10); 	// a number between 3 and 9
+						}
+						// if (participantSelect==1)
+						// {
+							// SkinnedMeshRenderer[] skinnedMeshRenderers = MyAvatar[count].GetComponentsInChildren<SkinnedMeshRenderer>();
+							// foreach (SkinnedMeshRenderer smr in skinnedMeshRenderers)
+							// {
+								// smr.enabled = false; // Disable visibility
+							// }
+						// }
+						Animators[count].SetInteger("LR", RightLeft[count]);
+						count++;
+					}
+				}
+			}
+			else
+			{		
+				for (int i1 = 0; i1 < stimSize; i1++)
+				{
+					for (int i2 = 0; i2 < stimSize; i2++)
+					{
+						randRightLeft=Random.Range(1f,100f);
+						if (randRightLeft < 40)		// right hand
+						{
+							RightLeft[count] = Random.Range(3,10);	// a number between 3 and 9
+						}
+						else		// left hand
+						{
+							RightLeft[count] = Random.Range(10,15); 	// a number between 10 and 14
+						}
+						Animators[count].SetInteger("LR", RightLeft[count]);
+						count++;
+					}
+				}
+			}
+			
+			// yield return new WaitForSeconds(1f);	                                                                         // the time before avatars raise their hand
+			refTime = Time.time;
+			if (participantSelect == 1)
+			{
+				// Dictionary to store original rotations
+				Dictionary<Transform, Quaternion> originalRotations = new Dictionary<Transform, Quaternion>();
+
+				// Hide the agents and rotate them
+				int avatarCount = 0;
+				foreach (GameObject avatar in MyAvatar)
+				{
+					ApplyColorPampons(avatar,pamponColorSelcet);
+					Transform[] allChildren = avatar.GetComponentsInChildren<Transform>(true);
+					fixationSign.SetActive(false);
+
+					if (RightLeft[avatarCount] < 10)
+					{
+						foreach (Transform child in allChildren)
+						{
+							if (child.CompareTag("invisibleSphereR"))
+							{
+								originalRotations[child] = child.rotation; // Store original rotation
+								child.rotation *= Quaternion.Euler(0f, 0f, 180f); // Rotate around Z-axis
+							}
+						}
+					}
+					else
+					{
+						foreach (Transform child in allChildren)
+						{
+							if (child.CompareTag("invisibleSphereL"))
+							{
+								originalRotations[child] = child.rotation; // Store original rotation
+								child.rotation *= Quaternion.Euler(0f, 0f, 180f); // Rotate around Z-axis
+							}
+						}
+					}
+
+					avatarCount++;
+				}
+
+				yield return new WaitForSeconds(4f); // Wait for 4 seconds
+
+				print("down");
+
+				
+				// Hide the agents and rotate them
+				avatarCount = 0;
+				foreach (GameObject avatar in MyAvatar)
+				{
+					ApplyColorPampons(avatar,pamponColorSelcet);
+					Transform[] allChildren = avatar.GetComponentsInChildren<Transform>(true);
+					fixationSign.SetActive(false);
+
+					if (RightLeft[avatarCount] < 10)
+					{
+						foreach (Transform child in allChildren)
+						{
+							if (child.CompareTag("invisibleSphereR"))
+							{
+								originalRotations[child] = child.rotation; // Store original rotation
+								child.rotation *= Quaternion.Euler(0f, 0f, -180f); // Rotate around Z-axis
+							}
+						}
+					}
+					else
+					{
+						foreach (Transform child in allChildren)
+						{
+							if (child.CompareTag("invisibleSphereL"))
+							{
+								originalRotations[child] = child.rotation; // Store original rotation
+								child.rotation *= Quaternion.Euler(0f, 0f, -180f); // Rotate around Z-axis
+							}
+						}
+					}
+
+					avatarCount++;
+				}
+				yield return new WaitForSeconds(4f);
+			}
+			else
+			{
+				// show the agents
+				for (int j = 0; j< (stimSize*stimSize);j++)																		         // avatars raise their hand and keep it up until further notice
+				{
+					Animators[j].SetInteger("O", 0);
+					Animators[j].SetInteger("U", RightLeft[j]);
+					Animators[j].SetInteger("KU", RightLeft[j]);
+					ApplyColorPampons(MyAvatar[j],pamponColorSelcet);
+				}
+				fixationSign.SetActive(false);
+				 print("Raise");
+				
+				yield return new WaitForSeconds(3f);							 															// the time that avatars keep their hands up
+				
+				refTime = Time.time;
+				timePassed=Time.time-refTime;	
+		
+				while(!(Input.GetKey(KeyCode.RightArrow)|Input.GetKey(KeyCode.LeftArrow))& (timePassed)<=trialDuration)
+				{
+					// yield return new WaitForSeconds(Time.deltaTime);
+					yield return null;
+					timePassed=Time.time-refTime;
+				}
+				if(Input.GetKey(KeyCode.RightArrow))
+				{
+					responses[trialNumber, 1] = 1;
+					Input.ResetInputAxes();
+				}
+				else if(Input.GetKey(KeyCode.LeftArrow))
+				{
+					responses[trialNumber, 1] = 2;
+					Input.ResetInputAxes();
+				}
+				else
+				{
+					responses[trialNumber, 1] = 0;
+				}
+
+				
+				for (int j = 0; j< (stimSize*stimSize);j++)								   
+				{
+					Animators[j].gameObject.name="Animator"+(j+1);
+					Animators[j].SetInteger("LR", 0);
+					Animators[j].SetInteger("U", 0);
+					Animators[j].SetInteger("KU", 0);
+					Animators[j].SetInteger("D", RightLeft[j]);
+					Animators[j].SetInteger("I", RightLeft[j]);
+				}
+				 print("Down");
+				
+				yield return new WaitForSeconds(1f); // the time that avatars have already lowered their hands and stay in their idle posture before returning to their original posture
+				for (int j = 0; j< (stimSize*stimSize);j++)								   // here, avatars lower their hands and go back to their original posture, waiting for the next trial to start
+				{
+					Animators[j].gameObject.name="Animator"+(j+1);
+					Animators[j].SetInteger("D", 0);
+					Animators[j].SetInteger("I", 0);
+					Animators[j].SetInteger("O", RightLeft[j]);
+				}
+				yield return new WaitForSeconds(3f);
+				print("Back");
+				for (int j = 0; j< (stimSize*stimSize);j++)								   // here, avatars lower their hands and go back to their original posture, waiting for the next trial to start
+				{
+					Animators[j].gameObject.name="Animator"+(j+1);
+					Animators[j].SetInteger("O", 0);
+				}
+			}
+			
+			
+			responses[trialNumber,0]=conditionSelect;
+			responses[trialNumber,2]=timePassed;
+			responses[trialNumber,3]=pamponColorSelcet;
+			print("responses: " + trialTest + " , " + responses[trialNumber,0] + " , " + responses[trialNumber,1] + " , " + responses[trialNumber,2] + " , " + responses[trialNumber,3]);
+			dataStringCoroutine = DataStringMaker(responses, trialNumber, MyList);
+			StartCoroutine(dataStringCoroutine);
+			trialNumber=trialNumber+1;
 		}
     }
 
@@ -674,9 +893,10 @@ public class Main : MonoBehaviour
 				form.AddField(address[0],prolificIdString2);
 				form.AddField(address[1],"LargeSmallPopulation");		// a code to simplify distinguishing the data from each experiment
 				// form.AddField(address[2],InstructionPick);		// a code to simplify distinguishing the data from each experiment
-				for(int i = 0; i < (numTrialsTrain+numTrialsTest-1); i++)
+				for(int i = 0; i < (numTrialsTrain+numTrialsTest); i++)
 				{
 					form.AddField(address[i+3],myList[i]);
+					print("num: "+i);
 				}
 				byte[] rawData=form.data;
 				WWW www=new WWW(BASE_URL, rawData);
