@@ -199,7 +199,6 @@ public class Main : MonoBehaviour
 								if (child.CompareTag("cylinder")|child.CompareTag("invisibleSphere")) // Check for cylinders deep in hierarchy
 								{
 									child.gameObject.SetActive(false);  // Hide the cylinder
-									Debug.Log("Hiding cylinder: " + child.name);
 								}
 								else if (child.CompareTag("Ball")) // Ensure balls remain active
 								{
@@ -416,7 +415,7 @@ public class Main : MonoBehaviour
 					Animators[j].SetInteger("O", 0);
 					Animators[j].SetInteger("U", RightLeft[j]);
 					Animators[j].SetInteger("KU", RightLeft[j]);
-					// ApplyColorPampons(MyAvatar[j],pamponColorSelcet);
+					ApplyColorPampons(MyAvatar[j],pamponColorSelcet);
 				}
 				fixationSign.SetActive(false);
 				 print("Raise");
@@ -506,6 +505,8 @@ public class Main : MonoBehaviour
                 !renderer.gameObject.name.Contains("Hair") &&
 				!renderer.gameObject.name.Contains("SphereL") &&
 				!renderer.gameObject.name.Contains("SphereR") &&
+				!renderer.gameObject.name.Contains("SphereLH") &&
+				!renderer.gameObject.name.Contains("SphereRH") &&
 				!renderer.gameObject.name.Contains("LSphere") &&
 				!renderer.gameObject.name.Contains("RSphere") &&
 				!renderer.gameObject.name.Contains("HandL") &&
@@ -535,16 +536,13 @@ public class Main : MonoBehaviour
 		// ChangeGlovesColor(newAvatar.transform);
 		foreach (Renderer renderer in newAvatar1.GetComponentsInChildren<Renderer>())
 		{
-			// Debug to check which objects are being processed
-			Debug.Log("Processing: " + renderer.gameObject.name);
-
 			if (ColorSelcet == 1)
 			{
 				if (renderer.gameObject.name.Contains("g_RetopoGroup1_RetopoGroup1") ||
 					renderer.gameObject.name.Contains("g_RetopoGroup2_RetopoGroup2") ||
-					renderer.gameObject.name.Contains("SphereL"))
+					renderer.gameObject.name.Contains("SphereL")||
+					renderer.gameObject.name.Contains("SphereLH"))
 				{
-					Debug.Log("Setting Left Hand & Groups 1-2 to Yellow");
 					foreach (Material mat in renderer.materials)
 					{
 						mat.color = Color.yellow; // Directly modify existing materials
@@ -552,9 +550,9 @@ public class Main : MonoBehaviour
 				}
 				else if (renderer.gameObject.name.Contains("g_RetopoGroup3_RetopoGroup3") ||
 						 renderer.gameObject.name.Contains("g_RetopoGroup4_RetopoGroup4") ||
-						 renderer.gameObject.name.Contains("SphereR"))
+						 renderer.gameObject.name.Contains("SphereR")||
+						 renderer.gameObject.name.Contains("SphereRH"))
 				{
-					Debug.Log("Setting Right Hand & Groups 3-4 to Blue");
 					foreach (Material mat in renderer.materials)
 					{
 						mat.color = Color.blue; // Directly modify existing materials
@@ -565,9 +563,9 @@ public class Main : MonoBehaviour
 			{
 				if (renderer.gameObject.name.Contains("g_RetopoGroup1_RetopoGroup1") ||
 					renderer.gameObject.name.Contains("g_RetopoGroup2_RetopoGroup2") ||
-					renderer.gameObject.name.Contains("SphereL"))
+					renderer.gameObject.name.Contains("SphereL")||
+					renderer.gameObject.name.Contains("SphereLH"))
 				{
-					Debug.Log("Setting Left Hand & Groups 1-2 to Blue");
 					foreach (Material mat in renderer.materials)
 					{
 						mat.color = Color.blue; // Directly modify existing materials
@@ -575,9 +573,9 @@ public class Main : MonoBehaviour
 				}
 				else if (renderer.gameObject.name.Contains("g_RetopoGroup3_RetopoGroup3") ||
 						 renderer.gameObject.name.Contains("g_RetopoGroup4_RetopoGroup4") ||
-						 renderer.gameObject.name.Contains("SphereR"))
+						 renderer.gameObject.name.Contains("SphereR")||
+						 renderer.gameObject.name.Contains("SphereRH"))
 				{
-					Debug.Log("Setting Right Hand & Groups 3-4 to Yellow");
 					foreach (Material mat in renderer.materials)
 					{
 						mat.color = Color.yellow; // Directly modify existing materials
