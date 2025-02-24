@@ -651,8 +651,8 @@ public class Main : MonoBehaviour
 		}
         sat = Random.Range(0.2f, 1f);		// how strong is the color
         val = Random.Range(0.3f, 0.7f);		// how bright is the color
-        
-        return Color.HSVToRGB(hue, sat, val);
+        // return Color.HSVToRGB(hue, sat, val);
+        return Color.HSVToRGB(0, .3f, .4f);
     }
 	
 	
