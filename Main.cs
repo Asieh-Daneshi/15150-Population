@@ -59,6 +59,12 @@ public class Main : MonoBehaviour
 	public float timePassed;
 	public int pamponColorSelcet;
 	public int trialNumber;
+	public float raiseTime;			   							                             // The time that takes cylinders raise hand. we manipulate speed of raise with this
+	public float ParticipantSelect1;
+	public float ParticipantSelect2;
+	public int BlockCount;
+	public int blockCount;
+	public int block_count;
 	// *************************************************************************************************************************************************************************
     private IEnumerator Start()			   											   // Called at the end of "Send" coroutine, when the participant enters his/her prolific ID
     {
@@ -87,10 +93,14 @@ public class Main : MonoBehaviour
     }
 
 	// in this coroutine, we generate all the avatars that we need (for example, if stimSize=15, we generate 225 avatars). At the end of coroutine, we delete original avatars (10 avatars)
-    private IEnumerator InstantiateAvatars()		                                              // Called at the end of "Start" coroutine, after "GeneratePositions" coroutine
+    private IEnumerator InstantiateAvatars(float participantSelect1, int BlockCount)		                                              // Called at the end of "Start" coroutine, after "GeneratePositions" coroutine
     {
-		Animators = new Animator[stimSize * stimSize];
-		myAvatars = new GameObject[stimSize * stimSize];
+		print("BlockCount  "+participantSelect1);
+		if (BlockCount==0)
+		{
+			Animators = new Animator[stimSize * stimSize];
+		    myAvatars = new GameObject[stimSize * stimSize];
+		}
         for (int i3 = 0; i3 < stimSize * stimSize; i3++)			// in this loop, I make a list of numbers between 0 and expected total number of avatars (stimSize * stimSize)
         {
             posList[i3] = i3;
@@ -124,6 +134,7 @@ public class Main : MonoBehaviour
                 GameObject newAvatar = Instantiate(avatarPrefabs[k1], position, Quaternion.identity, transform);
 				newAvatar.transform.rotation = Quaternion.Euler(0, 180, 0);
                 Animator newAnimator = newAvatar.GetComponent<Animator>();
+				newAnimator.runtimeAnimatorController = avatarPrefabs[k1].GetComponent<Animator>().runtimeAnimatorController;
 				Animators[row * (stimSize) +(k2)*(avatarPrefabs.Length)+k1]=newAnimator;
 				myAvatars[row * (stimSize) +(k2)*(avatarPrefabs.Length)+k1]=newAvatar;
                 ApplyRandomColorVariation(row * (stimSize) +(k2)*(avatarPrefabs.Length)+k1,newAvatar);
@@ -132,25 +143,24 @@ public class Main : MonoBehaviour
             }
         }
 		// Deactivate original avatars
-        DeactivateOriginalAvatars();
+        // DeactivateOriginalAvatars();
 		// In his loop, we assign a name for each animator!
 		for (int j = 0; j< (stimSize*stimSize);j++)
 		{
 			Animators[j].gameObject.name="Animator"+(j+1);
 		}
 		// Now that avatars are generated and stand in their supposed location, we need to control them. 
-		yield return StartCoroutine(ControlAvatars(myAvatars, numTrialsTrain, numTrialsTest));
+		yield return StartCoroutine(ControlAvatars(myAvatars, numTrialsTrain, numTrialsTest, participantSelect1));
     }
 
 	// "ControlAvatars" is a coroutine that controls the timing of the actions of avatars
-	private IEnumerator ControlAvatars(GameObject[] MyAvatar, int numberTrialsTrain, int numberTrialsTest)
+	private IEnumerator ControlAvatars(GameObject[] MyAvatar, int numberTrialsTrain, int numberTrialsTest, float participantSelect)
     {
 		pamponColorSelcet=Random.Range(1,3);	// if 1: right hand blue, left hand yellow; if 2: right hand yellow, left hand blue
 		responses = new float[400,10];			// Array of size 400*10 for saving responses of avatars
 		trialNumber = 0;
 		// this is a "between subject" experiment. Some participants see agents, some see cylinders. "participantSelect" determines if the participant is supposed to see the agents or cylinders
-		int participantSelect=Random.Range(1,3);			// if 1: hide the agents, show the cylinder; if 2: hide the cylinders, show the agents
-		// int participantSelect=1;
+			
 		int count=0;	
 		for (int i1 = 0; i1 < stimSize; i1++)
 		{
@@ -162,19 +172,23 @@ public class Main : MonoBehaviour
 					SkinnedMeshRenderer[] skinnedMeshRenderers = MyAvatar[count].GetComponentsInChildren<SkinnedMeshRenderer>();
 					foreach (SkinnedMeshRenderer smr in skinnedMeshRenderers)
 					{
-						// Ensure that balls remain visible
-						if (!smr.gameObject.CompareTag("Ball"))
-						{
-							smr.enabled = false; // Disable agent visibility
-						}
+						smr.enabled = false; // Disable agent visibility
 					}
 					// Show the cylinders
 					MeshRenderer[] meshRenderers = MyAvatar[count].GetComponentsInChildren<MeshRenderer>();
 					foreach (MeshRenderer mr in meshRenderers)
 					{
-						if (!mr.gameObject.CompareTag("Ball")) // Ensure balls stay visible
+						mr.enabled = true; // Enable cylinder visibility
+					}
+					foreach (GameObject avatar in MyAvatar)
+					{
+						Transform[] allChildren = avatar.GetComponentsInChildren<Transform>(true);
+						foreach (Transform child in allChildren)
 						{
-							mr.enabled = true; // Enable cylinder visibility
+							if (child.CompareTag("Ball")) // Ensure balls remain visible
+							{
+								child.gameObject.SetActive(true);
+							}
 						}
 					}
 				}
@@ -262,6 +276,7 @@ public class Main : MonoBehaviour
 			
 			yield return new WaitForSeconds(1f);	                                                                         // the time before avatars raise their hand
 			// refTime = Time.time;
+			raiseTime = 0.25f;
 			if (participantSelect == 1)
 			{
 				// Dictionary to store original rotations
@@ -281,8 +296,8 @@ public class Main : MonoBehaviour
 						{
 							if (child.CompareTag("invisibleSphereR"))
 							{
-								originalRotations[child] = child.rotation; // Store original rotation
-								child.rotation *= Quaternion.Euler(0f, 0f, 180f); // Rotate around Z-axis
+								// originalRotations[child] = child.rotation; // Store original rotation
+								child.rotation *= Quaternion.Euler(0f, 0f, 180f*(Time.deltaTime)/raiseTime); // Rotate around Z-axis
 							}
 						}
 					}
@@ -292,13 +307,46 @@ public class Main : MonoBehaviour
 						{
 							if (child.CompareTag("invisibleSphereL"))
 							{
-								originalRotations[child] = child.rotation; // Store original rotation
-								child.rotation *= Quaternion.Euler(0f, 0f, 180f); // Rotate around Z-axis
+								// originalRotations[child] = child.rotation; // Store original rotation
+								child.rotation *= Quaternion.Euler(0f, 0f, 180f*(Time.deltaTime)/raiseTime); // Rotate around Z-axis
 							}
 						}
 					}
-
 					avatarCount++;
+				}
+				float timeElapsed = 0f;
+				while (timeElapsed < raiseTime)
+				{
+					avatarCount = 0;
+					foreach (GameObject avatar in MyAvatar)
+					{
+						Transform[] allChildren = avatar.GetComponentsInChildren<Transform>(true);
+						if (RightLeft[avatarCount] < 10)
+						{
+							foreach (Transform child in allChildren)
+							{
+								if (child.CompareTag("invisibleSphereR"))
+								{
+									// originalRotations[child] = child.rotation; // Store original rotation
+									child.rotation *= Quaternion.Euler(0f, 0f, 180f*(Time.deltaTime)/raiseTime); // Rotate around Z-axis
+								}
+							}
+						}
+						else
+						{
+							foreach (Transform child in allChildren)
+							{
+								if (child.CompareTag("invisibleSphereL"))
+								{
+									// originalRotations[child] = child.rotation; // Store original rotation
+									child.rotation *= Quaternion.Euler(0f, 0f, 180f*(Time.deltaTime)/raiseTime); // Rotate around Z-axis
+								}
+							}
+						}
+						avatarCount++;
+					}
+					timeElapsed += Time.deltaTime;
+					yield return null;
 				}
 				refTime = Time.time;
 				timePassed=Time.time-refTime;
@@ -324,6 +372,11 @@ public class Main : MonoBehaviour
 				print("time: "+timePassed+"  res: "+responses[trialNumber, 1]);
 				// yield return new WaitForSeconds(1f);
 				// Hide the agents and rotate them
+
+				// Dictionary to store original rotations
+				// Dictionary<Transform, Quaternion> originalRotations = new Dictionary<Transform, Quaternion>();
+
+				// Hide the agents and rotate them
 				avatarCount = 0;
 				foreach (GameObject avatar in MyAvatar)
 				{
@@ -337,8 +390,8 @@ public class Main : MonoBehaviour
 						{
 							if (child.CompareTag("invisibleSphereR"))
 							{
-								originalRotations[child] = child.rotation; // Store original rotation
-								child.rotation *= Quaternion.Euler(0f, 0f, -180f); // Rotate around Z-axis
+								// originalRotations[child] = child.rotation; // Store original rotation
+								child.rotation *= Quaternion.Euler(0f, 0f, -180f*(Time.deltaTime)/raiseTime); // Rotate around Z-axis
 							}
 						}
 					}
@@ -348,14 +401,54 @@ public class Main : MonoBehaviour
 						{
 							if (child.CompareTag("invisibleSphereL"))
 							{
-								originalRotations[child] = child.rotation; // Store original rotation
-								child.rotation *= Quaternion.Euler(0f, 0f, -180f); // Rotate around Z-axis
+								// originalRotations[child] = child.rotation; // Store original rotation
+								child.rotation *= Quaternion.Euler(0f, 0f, -180f*(Time.deltaTime)/raiseTime); // Rotate around Z-axis
 							}
 						}
 					}
-
 					avatarCount++;
 				}
+				timeElapsed = 0f;
+				while (timeElapsed < raiseTime)
+				{
+					avatarCount = 0;
+					foreach (GameObject avatar in MyAvatar)
+					{
+						Transform[] allChildren = avatar.GetComponentsInChildren<Transform>(true);
+						if (RightLeft[avatarCount] < 10)
+						{
+							foreach (Transform child in allChildren)
+							{
+								if (child.CompareTag("invisibleSphereR"))
+								{
+									// originalRotations[child] = child.rotation; // Store original rotation
+									child.rotation *= Quaternion.Euler(0f, 0f, -180f*(Time.deltaTime)/raiseTime); // Rotate around Z-axis
+								}
+							}
+						}
+						else
+						{
+							foreach (Transform child in allChildren)
+							{
+								if (child.CompareTag("invisibleSphereL"))
+								{
+									// originalRotations[child] = child.rotation; // Store original rotation
+									child.rotation *= Quaternion.Euler(0f, 0f, -180f*(Time.deltaTime)/raiseTime); // Rotate around Z-axis
+								}
+							}
+						}
+						avatarCount++;
+					}
+					timeElapsed += Time.deltaTime;
+					yield return null;
+				}
+				
+				
+				
+				
+				
+				
+				
 				yield return new WaitForSeconds(2f);
 			}
 			else
@@ -509,8 +602,8 @@ public class Main : MonoBehaviour
 						{
 							if (child.CompareTag("invisibleSphereR"))
 							{
-								originalRotations[child] = child.rotation; // Store original rotation
-								child.rotation *= Quaternion.Euler(0f, 0f, 180f); // Rotate around Z-axis
+								// originalRotations[child] = child.rotation; // Store original rotation
+								child.rotation *= Quaternion.Euler(0f, 0f, 180f*(Time.deltaTime)/raiseTime); // Rotate around Z-axis
 							}
 						}
 					}
@@ -520,13 +613,46 @@ public class Main : MonoBehaviour
 						{
 							if (child.CompareTag("invisibleSphereL"))
 							{
-								originalRotations[child] = child.rotation; // Store original rotation
-								child.rotation *= Quaternion.Euler(0f, 0f, 180f); // Rotate around Z-axis
+								// originalRotations[child] = child.rotation; // Store original rotation
+								child.rotation *= Quaternion.Euler(0f, 0f, 180f*(Time.deltaTime)/raiseTime); // Rotate around Z-axis
 							}
 						}
 					}
-
 					avatarCount++;
+				}
+				float timeElapsed = 0f;
+				while (timeElapsed < raiseTime)
+				{
+					avatarCount = 0;
+					foreach (GameObject avatar in MyAvatar)
+					{
+						Transform[] allChildren = avatar.GetComponentsInChildren<Transform>(true);
+						if (RightLeft[avatarCount] < 10)
+						{
+							foreach (Transform child in allChildren)
+							{
+								if (child.CompareTag("invisibleSphereR"))
+								{
+									// originalRotations[child] = child.rotation; // Store original rotation
+									child.rotation *= Quaternion.Euler(0f, 0f, 180f*(Time.deltaTime)/raiseTime); // Rotate around Z-axis
+								}
+							}
+						}
+						else
+						{
+							foreach (Transform child in allChildren)
+							{
+								if (child.CompareTag("invisibleSphereL"))
+								{
+									// originalRotations[child] = child.rotation; // Store original rotation
+									child.rotation *= Quaternion.Euler(0f, 0f, 180f*(Time.deltaTime)/raiseTime); // Rotate around Z-axis
+								}
+							}
+						}
+						avatarCount++;
+					}
+					timeElapsed += Time.deltaTime;
+					yield return null;
 				}
 				refTime = Time.time;
 				timePassed=Time.time-refTime;
@@ -552,6 +678,11 @@ public class Main : MonoBehaviour
 				print("time: "+timePassed+"  res: "+responses[trialNumber, 1]);
 				// yield return new WaitForSeconds(1f);
 				// Hide the agents and rotate them
+
+				// Dictionary to store original rotations
+				// Dictionary<Transform, Quaternion> originalRotations = new Dictionary<Transform, Quaternion>();
+
+				// Hide the agents and rotate them
 				avatarCount = 0;
 				foreach (GameObject avatar in MyAvatar)
 				{
@@ -565,8 +696,8 @@ public class Main : MonoBehaviour
 						{
 							if (child.CompareTag("invisibleSphereR"))
 							{
-								originalRotations[child] = child.rotation; // Store original rotation
-								child.rotation *= Quaternion.Euler(0f, 0f, -180f); // Rotate around Z-axis
+								// originalRotations[child] = child.rotation; // Store original rotation
+								child.rotation *= Quaternion.Euler(0f, 0f, -180f*(Time.deltaTime)/raiseTime); // Rotate around Z-axis
 							}
 						}
 					}
@@ -576,14 +707,54 @@ public class Main : MonoBehaviour
 						{
 							if (child.CompareTag("invisibleSphereL"))
 							{
-								originalRotations[child] = child.rotation; // Store original rotation
-								child.rotation *= Quaternion.Euler(0f, 0f, -180f); // Rotate around Z-axis
+								// originalRotations[child] = child.rotation; // Store original rotation
+								child.rotation *= Quaternion.Euler(0f, 0f, -180f*(Time.deltaTime)/raiseTime); // Rotate around Z-axis
 							}
 						}
 					}
-
 					avatarCount++;
 				}
+				timeElapsed = 0f;
+				while (timeElapsed < raiseTime)
+				{
+					avatarCount = 0;
+					foreach (GameObject avatar in MyAvatar)
+					{
+						Transform[] allChildren = avatar.GetComponentsInChildren<Transform>(true);
+						if (RightLeft[avatarCount] < 10)
+						{
+							foreach (Transform child in allChildren)
+							{
+								if (child.CompareTag("invisibleSphereR"))
+								{
+									// originalRotations[child] = child.rotation; // Store original rotation
+									child.rotation *= Quaternion.Euler(0f, 0f, -180f*(Time.deltaTime)/raiseTime); // Rotate around Z-axis
+								}
+							}
+						}
+						else
+						{
+							foreach (Transform child in allChildren)
+							{
+								if (child.CompareTag("invisibleSphereL"))
+								{
+									// originalRotations[child] = child.rotation; // Store original rotation
+									child.rotation *= Quaternion.Euler(0f, 0f, -180f*(Time.deltaTime)/raiseTime); // Rotate around Z-axis
+								}
+							}
+						}
+						avatarCount++;
+					}
+					timeElapsed += Time.deltaTime;
+					yield return null;
+				}
+				
+				
+				
+				
+				
+				
+				
 				yield return new WaitForSeconds(2f);
 			}
 			else
@@ -660,6 +831,24 @@ public class Main : MonoBehaviour
 			StartCoroutine(dataStringCoroutine);
 			trialNumber=trialNumber+1;
 		}
+		
+		
+		
+	
+		
+		foreach (GameObject avatar in MyAvatar)
+		{
+			avatar.SetActive(false);
+		}
+
+		
+		print("boro");
+		if (blockCount==0)
+		{
+			ParticipantSelect2=((participantSelect-1.5f)*-1f)+1.5f;
+			StartCoroutine(InstantiateAvatars(ParticipantSelect2,blockCount+1));
+		}
+		blockCount=blockCount+1;
     }
 
     private void DeactivateOriginalAvatars()
@@ -822,7 +1011,7 @@ public class Main : MonoBehaviour
         sat = Random.Range(0.2f, 1f);		// how strong is the color
         val = Random.Range(0.3f, 0.7f);		// how bright is the color
         // return Color.HSVToRGB(hue, sat, val);
-        return Color.HSVToRGB(0, .3f, .4f);			// all avatars wera creme color
+        return Color.HSVToRGB(0, 0f, 0f);			// all avatars wera creme color
     }
 	
 	
@@ -902,7 +1091,9 @@ public class Main : MonoBehaviour
 			StartCoroutine(GeneratePositions());
 
 			// Step 2: Instantiate Avatars
-			StartCoroutine(InstantiateAvatars());
+			ParticipantSelect1=Random.Range(1,3);
+			block_count=0;
+			StartCoroutine(InstantiateAvatars(ParticipantSelect1,0));
 		}
 		//ExpManager.SetActive(true);
 	}
