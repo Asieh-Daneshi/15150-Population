@@ -266,9 +266,9 @@ public class Main : MonoBehaviour
 //                                                                            Practice session 
 // *****************************************************************************************************************************************************************************
 // *****************************************************************************************************************************************************************************
-		conditionSelect=Random.Range(1,3);	// we have one condition in practice and cath trials 60 to 40, but the dominant color can be yellow or blue, so, we consider two conditions: 60 to 40 or 40 to 60
 		for (int trialTrain=0; trialTrain< numberTrialsTrain; trialTrain++)		
 		{
+			conditionSelect=Random.Range(1,3);	// we have one condition in practice and cath trials 60 to 40, but the dominant color can be yellow or blue, so, we consider two conditions: 60 to 40 or 40 to 60
 			yield return new WaitForSeconds(1f);
 			RightLeft = new int[stimSize * stimSize];														// "RightLeft" determines each agent should raise right or left hand
 			float randRightLeft=0;
@@ -390,7 +390,7 @@ public class Main : MonoBehaviour
 				}
 				refTime = Time.time;
 				timePassed=Time.time-refTime;
-				while(!(Input.GetKey(KeyCode.RightArrow)||Input.GetKey(KeyCode.LeftArrow))&& (timePassed)<=trialDuration)
+				while(!(Input.GetKey(KeyCode.RightArrow)||Input.GetKey(KeyCode.LeftArrow)||Input.GetKey(KeyCode.DownArrow))&& (timePassed)<=trialDuration)
 				{
 					yield return new WaitForSeconds(Time.deltaTime);
 					timePassed=Time.time-refTime;
@@ -403,6 +403,11 @@ public class Main : MonoBehaviour
 				else if(Input.GetKey(KeyCode.LeftArrow))
 				{
 					responses[trialNumber, 1] = 2;
+					Input.ResetInputAxes();
+				}
+				else if(Input.GetKey(KeyCode.DownArrow))
+				{
+					responses[trialNumber, 1] = 3;
 					Input.ResetInputAxes();
 				}
 				else
@@ -507,7 +512,7 @@ public class Main : MonoBehaviour
 				refTime = Time.time;
 				timePassed=Time.time-refTime;	
 		
-				while(!(Input.GetKey(KeyCode.RightArrow)||Input.GetKey(KeyCode.LeftArrow))&& (timePassed)<=trialDuration)
+				while(!(Input.GetKey(KeyCode.RightArrow)||Input.GetKey(KeyCode.LeftArrow)||Input.GetKey(KeyCode.DownArrow))&& (timePassed)<=trialDuration)
 				{
 					yield return new WaitForSeconds(Time.deltaTime);
 					timePassed=Time.time-refTime;
@@ -520,6 +525,11 @@ public class Main : MonoBehaviour
 				else if(Input.GetKey(KeyCode.LeftArrow))
 				{
 					responses[trialNumber, 1] = 2;
+					Input.ResetInputAxes();
+				}
+				else if(Input.GetKey(KeyCode.DownArrow))
+				{
+					responses[trialNumber, 1] = 3;
 					Input.ResetInputAxes();
 				}
 				else
@@ -576,6 +586,8 @@ public class Main : MonoBehaviour
 // *****************************************************************************************************************************************************************************		
 		for (int trialTest=0; trialTest< numberTrialsTrain; trialTest++)		
 		{
+			conditionSelect=Random.Range(1,3);	// we have one condition in practice and main trials 60 to 40, but the dominant color can be yellow or blue, so, we consider two conditions: 60 to 40 or 40 to 60
+			// In catch trials, either all raise yellow or all raise blue
 			yield return new WaitForSeconds(1f);
 			RightLeft = new int[stimSize * stimSize];														// "RightLeft" determines each agent should raise right or left hand
 			float randRightLeft=0;
@@ -600,7 +612,7 @@ public class Main : MonoBehaviour
 					}
 				}
 			}
-			else
+			else if (conditionSelect==2)
 			{		
 				for (int i1 = 0; i1 < stimSize; i1++)
 				{
@@ -620,6 +632,31 @@ public class Main : MonoBehaviour
 					}
 				}
 			}
+			else if (conditionSelect==3)
+			{		
+				for (int i1 = 0; i1 < stimSize; i1++)
+				{
+					for (int i2 = 0; i2 < stimSize; i2++)
+					{
+						RightLeft[count] = Random.Range(3,10);	// a number between 3 and 9
+						Animators[count].SetInteger("LR", RightLeft[count]);
+						count++;
+					}
+				}
+			}
+			else
+			{		
+				for (int i1 = 0; i1 < stimSize; i1++)
+				{
+					for (int i2 = 0; i2 < stimSize; i2++)
+					{
+						RightLeft[count] = Random.Range(10,15); 	// a number between 10 and 14
+						Animators[count].SetInteger("LR", RightLeft[count]);
+						count++;
+					}
+				}
+			}
+			
 			
 			yield return new WaitForSeconds(1f);	                                                                         // the time before avatars raise their hand
 			// refTime = Time.time;
@@ -696,7 +733,7 @@ public class Main : MonoBehaviour
 				}
 				refTime = Time.time;
 				timePassed=Time.time-refTime;
-				while(!(Input.GetKey(KeyCode.RightArrow)||Input.GetKey(KeyCode.LeftArrow))&& (timePassed)<=trialDuration)
+				while(!(Input.GetKey(KeyCode.RightArrow)||Input.GetKey(KeyCode.LeftArrow)||Input.GetKey(KeyCode.DownArrow))&& (timePassed)<=trialDuration)
 				{
 					yield return new WaitForSeconds(Time.deltaTime);
 					timePassed=Time.time-refTime;
@@ -709,6 +746,11 @@ public class Main : MonoBehaviour
 				else if(Input.GetKey(KeyCode.LeftArrow))
 				{
 					responses[trialNumber, 1] = 2;
+					Input.ResetInputAxes();
+				}
+				else if(Input.GetKey(KeyCode.DownArrow))
+				{
+					responses[trialNumber, 1] = 3;
 					Input.ResetInputAxes();
 				}
 				else
@@ -813,7 +855,7 @@ public class Main : MonoBehaviour
 				refTime = Time.time;
 				timePassed=Time.time-refTime;	
 		
-				while(!(Input.GetKey(KeyCode.RightArrow)||Input.GetKey(KeyCode.LeftArrow))&& (timePassed)<=trialDuration)
+				while(!(Input.GetKey(KeyCode.RightArrow)||Input.GetKey(KeyCode.LeftArrow)||Input.GetKey(KeyCode.DownArrow))&& (timePassed)<=trialDuration)
 				{
 					yield return new WaitForSeconds(Time.deltaTime);
 					timePassed=Time.time-refTime;
@@ -826,6 +868,11 @@ public class Main : MonoBehaviour
 				else if(Input.GetKey(KeyCode.LeftArrow))
 				{
 					responses[trialNumber, 1] = 2;
+					Input.ResetInputAxes();
+				}
+				else if(Input.GetKey(KeyCode.DownArrow))
+				{
+					responses[trialNumber, 1] = 3;
 					Input.ResetInputAxes();
 				}
 				else
@@ -1075,7 +1122,7 @@ public class Main : MonoBehaviour
 				form.AddField(address[0],prolificIdString2);
 				form.AddField(address[1],"LargeSmallPopulation");		// a code to simplify distinguishing the data from each experiment
 				// form.AddField(address[2],InstructionPick);		// a code to simplify distinguishing the data from each experiment
-				for(int i = 0; i < (numTrialsTrain+numTrialsTest); i++)
+				for(int i = 0; i < (numTrialsTrain+numTrialsTest)*2; i++)
 				{
 					form.AddField(address[i+3],myList[i]);
 					print("num: "+i);
