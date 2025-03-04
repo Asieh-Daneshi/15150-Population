@@ -35,6 +35,11 @@ public class Main : MonoBehaviour
     public GameObject[] avatarPrefabs;		  																				  // the original avatars that we copy several times
 	public GameObject fixationSign;
 	private GameObject[] myAvatars;	
+	public GameObject GeneralInstructions;
+	public GameObject Instructions1;
+	public GameObject Instructions2;
+	public GameObject Instructions3;
+	public GameObject Instructions4;
 	// Animators ***************************************************************************************************************************************************************
 	private Animator[] Animators;											   							  			   // animations of the avatars that we are going to control
 	// Materials ***************************************************************************************************************************************************************
@@ -95,6 +100,8 @@ public class Main : MonoBehaviour
 	// in this coroutine, we generate all the avatars that we need (for example, if stimSize=15, we generate 225 avatars). At the end of coroutine, we delete original avatars (10 avatars)
     private IEnumerator InstantiateAvatars(float participantSelect1, int BlockCount)		                                              // Called at the end of "Start" coroutine, after "GeneratePositions" coroutine
     {
+		// public float internalRefTime;
+		float internalRefTime=Time.time;
 		print("BlockCount  "+participantSelect1);
 		if (BlockCount==0)
 		{
@@ -149,12 +156,44 @@ public class Main : MonoBehaviour
 		{
 			Animators[j].gameObject.name="Animator"+(j+1);
 		}
-		// Now that avatars are generated and stand in their supposed location, we need to control them. 
-		yield return StartCoroutine(ControlAvatars(myAvatars, numTrialsTrain, numTrialsTest, participantSelect1));
+		// Now that avatars are generated and stand in their supposed location, we need to control them.
+		int PomponColorSelcet=Random.Range(1,3);	// if 1: right hand blue, left hand yellow; if 2: right hand yellow, left hand blue
+		if (participantSelect1 == 1 & PomponColorSelcet ==1)
+		{
+			CanvasObject.GetComponent<Canvas>().enabled = true;
+			CanvasBKG.GetComponent<SpriteRenderer>().enabled = true;
+			Instructions1.SetActive(true);
+		}
+		else if (participantSelect1 == 1 & PomponColorSelcet ==2)
+		{
+			CanvasObject.GetComponent<Canvas>().enabled = true;
+			CanvasBKG.GetComponent<SpriteRenderer>().enabled = true;
+			Instructions2.SetActive(true);
+		}
+		else if (participantSelect1 == 2 & PomponColorSelcet ==1)
+		{
+			CanvasObject.GetComponent<Canvas>().enabled = true;
+			CanvasBKG.GetComponent<SpriteRenderer>().enabled = true;
+			Instructions3.SetActive(true);
+		}
+		else
+		{
+			CanvasObject.GetComponent<Canvas>().enabled = true;
+			CanvasBKG.GetComponent<SpriteRenderer>().enabled = true;
+			Instructions4.SetActive(true);
+		}
+		yield return new WaitForSeconds(10f-Time.time+internalRefTime);
+		CanvasObject.GetComponent<Canvas>().enabled = false;
+		CanvasBKG.GetComponent<SpriteRenderer>().enabled = false;
+		Instructions1.SetActive(false);
+		Instructions2.SetActive(false);
+		Instructions3.SetActive(false);
+		Instructions4.SetActive(false);
+		yield return StartCoroutine(ControlAvatars(myAvatars, numTrialsTrain, numTrialsTest, participantSelect1,PomponColorSelcet));
     }
 
 	// "ControlAvatars" is a coroutine that controls the timing of the actions of avatars
-	private IEnumerator ControlAvatars(GameObject[] MyAvatar, int numberTrialsTrain, int numberTrialsTest, float participantSelect)
+	private IEnumerator ControlAvatars(GameObject[] MyAvatar, int numberTrialsTrain, int numberTrialsTest, float participantSelect, int pamponColorSelcet)
     {
 		pamponColorSelcet=Random.Range(1,3);	// if 1: right hand blue, left hand yellow; if 2: right hand yellow, left hand blue
 		responses = new float[400,10];			// Array of size 400*10 for saving responses of avatars
@@ -180,6 +219,7 @@ public class Main : MonoBehaviour
 					{
 						mr.enabled = true; // Enable cylinder visibility
 					}
+					
 					foreach (GameObject avatar in MyAvatar)
 					{
 						Transform[] allChildren = avatar.GetComponentsInChildren<Transform>(true);
@@ -187,7 +227,7 @@ public class Main : MonoBehaviour
 						{
 							if (child.CompareTag("Ball")) // Ensure balls remain visible
 							{
-								child.gameObject.SetActive(true);
+								child.gameObject.SetActive(false);
 							}
 						}
 					}
@@ -276,7 +316,7 @@ public class Main : MonoBehaviour
 			
 			yield return new WaitForSeconds(1f);	                                                                         // the time before avatars raise their hand
 			// refTime = Time.time;
-			raiseTime = 0.25f;
+			raiseTime = 1f;
 			if (participantSelect == 1)
 			{
 				// Dictionary to store original rotations
@@ -842,11 +882,14 @@ public class Main : MonoBehaviour
 		}
 
 		
-		print("boro");
+		
 		if (blockCount==0)
 		{
 			ParticipantSelect2=((participantSelect-1.5f)*-1f)+1.5f;
 			StartCoroutine(InstantiateAvatars(ParticipantSelect2,blockCount+1));
+			fixationSign.SetActive(true);
+			yield return new WaitForSeconds(10f);
+			fixationSign.SetActive(false);
 		}
 		blockCount=blockCount+1;
     }
@@ -1080,6 +1123,7 @@ public class Main : MonoBehaviour
 			// prolificIdString1="Asi";
 			// StartCoroutine(PID(prolificIdString1));
 			prolificID.SetActive(false);
+			GeneralInstructions.SetActive(false);
 			// 
 			myButton.SetActive(false);	// This removes the button from the UI entirely:
 			CanvasObject.GetComponent<Canvas>().enabled = false;
