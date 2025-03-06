@@ -268,12 +268,12 @@ public class Main : MonoBehaviour
 // *****************************************************************************************************************************************************************************
 		for (int trialTrain=0; trialTrain< numberTrialsTrain; trialTrain++)		
 		{
-			conditionSelect=Random.Range(1,3);	// we have one condition in practice and cath trials 60 to 40, but the dominant color can be yellow or blue, so, we consider two conditions: 60 to 40 or 40 to 60
+			conditionSelect=Random.Range(0,100);	// we have one condition in practice and cath trials 60 to 40, but the dominant color can be yellow or blue, so, we consider two conditions: 60 to 40 or 40 to 60
 			yield return new WaitForSeconds(1f);
 			RightLeft = new int[stimSize * stimSize];														// "RightLeft" determines each agent should raise right or left hand
 			float randRightLeft=0;
 			count=0;
-			if (conditionSelect==1)
+			if (conditionSelect<45)
 			{		
 				for (int i1 = 0; i1 < stimSize; i1++)
 				{
@@ -293,7 +293,7 @@ public class Main : MonoBehaviour
 					}
 				}
 			}
-			else
+			else if (conditionSelect>=45 & conditionSelect<90)
 			{		
 				for (int i1 = 0; i1 < stimSize; i1++)
 				{
@@ -313,10 +313,34 @@ public class Main : MonoBehaviour
 					}
 				}
 			}
+			else if (conditionSelect>=90 & conditionSelect<95)
+			{		
+				for (int i1 = 0; i1 < stimSize; i1++)
+				{
+					for (int i2 = 0; i2 < stimSize; i2++)
+					{
+						RightLeft[count] = Random.Range(3,10);	// a number between 3 and 9
+						Animators[count].SetInteger("LR", RightLeft[count]);
+						count++;
+					}
+				}
+			}
+			else
+			{		
+				for (int i1 = 0; i1 < stimSize; i1++)
+				{
+					for (int i2 = 0; i2 < stimSize; i2++)
+					{
+						RightLeft[count] = Random.Range(10,15); 	// a number between 10 and 14
+						Animators[count].SetInteger("LR", RightLeft[count]);
+						count++;
+					}
+				}
+			}
 			
 			yield return new WaitForSeconds(1f);	                                                                         // the time before avatars raise their hand
 			// refTime = Time.time;
-			raiseTime = 1f;
+			raiseTime = .5f;
 			if (participantSelect == 1)
 			{
 				// Dictionary to store original rotations
@@ -586,13 +610,13 @@ public class Main : MonoBehaviour
 // *****************************************************************************************************************************************************************************		
 		for (int trialTest=0; trialTest< numberTrialsTrain; trialTest++)		
 		{
-			conditionSelect=Random.Range(1,3);	// we have one condition in practice and main trials 60 to 40, but the dominant color can be yellow or blue, so, we consider two conditions: 60 to 40 or 40 to 60
+			conditionSelect=Random.Range(0,100);	// we have one condition in practice and main trials 60 to 40, but the dominant color can be yellow or blue, so, we consider two conditions: 60 to 40 or 40 to 60
 			// In catch trials, either all raise yellow or all raise blue
 			yield return new WaitForSeconds(1f);
 			RightLeft = new int[stimSize * stimSize];														// "RightLeft" determines each agent should raise right or left hand
 			float randRightLeft=0;
 			count=0;
-			if (conditionSelect==1)
+			if (conditionSelect<45)
 			{		
 				for (int i1 = 0; i1 < stimSize; i1++)
 				{
@@ -612,7 +636,7 @@ public class Main : MonoBehaviour
 					}
 				}
 			}
-			else if (conditionSelect==2)
+			else if (conditionSelect>=45 & conditionSelect<90)
 			{		
 				for (int i1 = 0; i1 < stimSize; i1++)
 				{
@@ -632,7 +656,7 @@ public class Main : MonoBehaviour
 					}
 				}
 			}
-			else if (conditionSelect==3)
+			else if (conditionSelect>=90 & conditionSelect<95)
 			{		
 				for (int i1 = 0; i1 < stimSize; i1++)
 				{
